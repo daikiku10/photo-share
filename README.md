@@ -1,2 +1,4 @@
 # photo-share
-FE, BFF：Next.js(App Router), BE：Go(gin)
+FE: Next.js(App Router)
+BFF: Next.js(App Router)
+BE：Go(gin)
