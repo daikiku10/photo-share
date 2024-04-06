@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"photo-share/back/infrastructure"
 	"photo-share/back/sharelib/domain/logging"
 	timezone "photo-share/back/sharelib/timezone"
@@ -13,8 +12,10 @@ func main() {
 	config := infrastructure.Configs{
 		LogLevel: "debug",
 	}
-	fmt.Println(config)
 
 	// Logger初期化
 	logging.InitLoggerWithLevel(logging.NewLogLevel(config.LogLevel))
+	logging.InitLoggerEncoding(logging.CONSOLE)
+	// Loggerの後始末処理
+	defer logging.Sync()
 }
