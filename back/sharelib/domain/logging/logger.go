@@ -58,10 +58,10 @@ func InitLoggerEncoding(encode string) {
 	option().Encoding = encode
 }
 
-// Sync 出力されていないログを処理する
+// Sync 出力されていないログを処理する(蓄積されたログを全て吐き出す)
 // ログの消失を防ぐため、main関数のdeferで呼び出すこと
 func Sync() {
-	if _logger == nil {
+	if _logger != nil {
 		_logger.Sync()
 	}
 }
