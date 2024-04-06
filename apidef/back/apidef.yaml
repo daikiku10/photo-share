@@ -1,0 +1,37 @@
+openapi: 3.0.3
+
+info:
+  description: photo-share api
+  version: 1.0.0
+  title: API
+  contact:
+    name: photo-share
+
+tags:
+  - name: photo
+    description: テスト説明
+
+paths:
+  /photo/test:
+    get:
+      tags:
+        - photo
+      summary: テストAPI
+      description: これはテストAPIです。
+      operationId: getPhotoD
+      parameters:
+        - name: photoId
+          in: query
+          description: 写真ID
+          required: false
+          schema:
+            type: string
+            example: PhotoId1
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 取得成功です。
