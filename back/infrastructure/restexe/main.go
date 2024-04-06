@@ -6,6 +6,8 @@ import (
 	"photo-share/back/sharelib/domain/logging"
 	timezone "photo-share/back/sharelib/timezone"
 	"photo-share/back/usecase/handler"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -13,6 +15,7 @@ func main() {
 
 	config := infrastructure.Configs{
 		LogLevel: "debug",
+		GinMode:  gin.DebugMode,
 	}
 
 	// Logger初期化
@@ -28,4 +31,7 @@ func main() {
 	controller := handler.NewServer(repository)
 	fmt.Println(controller)
 
+	gin.SetMode(config.GinMode)
+	r := gin.Default()
+	fmt.Println(r)
 }
