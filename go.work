@@ -7,5 +7,6 @@ use (
 
     ./back/infrastructure/restexe
 
+    ./back/sharelib/domain
     ./back/sharelib/timezone
 )
