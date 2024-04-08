@@ -12,8 +12,8 @@ services:
       TZ: Asia/Tokyo
     ports:
       - "3306:3306"
-    # volumes:
-    #   - ../../cdk/assets/common/rds:/docker-entrypoint-initdb.d/00-init
+    volumes:
+      - ../../cdk/assets/common/rds:/docker-entrypoint-initdb.d/00-init
     command:
       [
         "mysqld",
