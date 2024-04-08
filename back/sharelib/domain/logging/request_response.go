@@ -14,6 +14,11 @@ type bufferedResponseWriter struct {
 	buffer *bytes.Buffer
 }
 
+func (b *bufferedResponseWriter) Write(data []byte) (int, error) {
+	b.buffer.Write(data)
+	return b.ResponseWriter.Write(data)
+}
+
 func (b *bufferedResponseWriter) String() string {
 	return b.buffer.String()
 }
