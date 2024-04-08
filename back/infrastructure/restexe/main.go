@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"photo-share/back/infrastructure"
+	"photo-share/back/infrastructure/restexe/apidef/server"
 	"photo-share/back/sharelib/domain/logging"
 	timezone "photo-share/back/sharelib/timezone"
 	"photo-share/back/usecase/handler"
@@ -29,9 +29,13 @@ func main() {
 
 	// コントローラーの登録
 	controller := handler.NewServer(repository)
-	fmt.Println(controller)
 
 	gin.SetMode(config.GinMode)
 	r := gin.Default()
+	// ログの出力設定
 	r.Use(logging.LogRequestResponseMiddleware)
+	// TODO:トランザクション設定
+
+	server.RegisterHandlers(r, controller)
+	r.Run(":9993")
 }
