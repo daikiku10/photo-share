@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  # MySQL
+  db:
+    image: mysql:8.1.0
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      TZ: Asia/Tokyo
+    ports:
+      - "3306:3306"
+    # volumes:
+    #   - ../../cdk/assets/common/rds:/docker-entrypoint-initdb.d/00-init
+    command:
+      [
+        "mysqld",
+        "--default-time-zone=+09:00",
+        "--transaction-isolation=READ-COMMITTED",
+      ]
+
+  # phpMyAdmin
+  phpMyAdmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db
+      - PMA_USER=root
+      - PMA_PASSWORD=my-secret-pw
+    ports:
+      - 9090:80
