@@ -33,5 +33,5 @@ func main() {
 
 	gin.SetMode(config.GinMode)
 	r := gin.Default()
-	fmt.Println(r)
+	r.Use(logging.LogRequestResponseMiddleware)
 }
