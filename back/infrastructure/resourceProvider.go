@@ -1,6 +1,9 @@
 package infrastructure
 
-import "fmt"
+import (
+	"photo-share/back/repository"
+	"photo-share/back/usecase"
+)
 
 type ResourceProvider struct {
 	config Configs
@@ -12,7 +15,6 @@ func NewResourceProvider(config Configs) *ResourceProvider {
 	}
 }
 
-func (rp *ResourceProvider) PhotoShareRepository() error {
-	fmt.Println("テストだよ！")
-	return nil
+func (rp *ResourceProvider) PhotoShareRepository() (usecase.PhotoShareRepositoryInterface, error) {
+	return repository.NewPhotoShareRepository()
 }
