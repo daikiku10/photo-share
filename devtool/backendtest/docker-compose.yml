@@ -13,6 +13,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
+      - ./initdb.sh:/docker-entrypoint-initdb.d/init.sh
       - ../../cdk/assets/common/rds:/docker-entrypoint-initdb.d/00-init
     command:
       [
