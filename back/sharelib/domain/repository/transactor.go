@@ -3,10 +3,16 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"photo-share/back/sharelib/domain/logging"
 )
 
-type Transactor interface{}
+type Transactor interface {
+	// IsOpen トランザクション中か判断する
+	IsOpen() bool
+	// Rollback トランザクションをロールバックする
+	Rollback() error
+}
 
 // TransactorImpl Transactor実装モジュール
 type transactorImpl struct {
@@ -14,6 +20,26 @@ type transactorImpl struct {
 	tx   *sql.Tx
 	ctx  context.Context
 	opts *sql.TxOptions
+}
+
+// IsOpen トランザクション中ならtrue、そうでなければfalse
+func (trns *transactorImpl) IsOpen() bool {
+	return trns.tx != nil
+}
+
+// Rollback トランザクションをロールバックする
+func (trns *transactorImpl) Rollback() (err error) {
+	if !trns.IsOpen() {
+		err = fmt.Errorf("トランザクションは開始していません")
+		return
+	}
+
+	err = trns.tx.Rollback()
+	if err == nil {
+		logging.Debug("transaction rollback")
+		trns.tx = nil
+	}
+	return
 }
 
 // NewTransactorWithOpts Transactorを構築する
