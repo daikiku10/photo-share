@@ -102,6 +102,12 @@ func Var(t string, v any) LogValue {
 	}
 }
 
+// Err エラー変数のログ出力設定
+// 固定で変数名がerrになる
+func Err(err error) LogValue {
+	return Var("err", err)
+}
+
 // Debug DEBUGレベルでログ出力する
 func Debug(message string, values ...LogValue) {
 	var params []zapcore.Field
