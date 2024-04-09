@@ -110,3 +110,12 @@ func Debug(message string, values ...LogValue) {
 	}
 	logger().Debug(message, params...)
 }
+
+// ERRORレベルのログ出力をする
+func Error(message string, values ...LogValue) {
+	var params []zapcore.Field
+	for _, kv := range values {
+		params = append(params, zap.Any(kv.Title, kv.Value))
+	}
+	logger().Error(message, params...)
+}
