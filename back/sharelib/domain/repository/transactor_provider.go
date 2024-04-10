@@ -17,6 +17,16 @@ type TransactorProvider interface {
 	NewTransactorWithFlag(opts *sql.TxOptions, toOpen bool) (Transactor, error)
 }
 
+// NewTransactorProvider TransactorProviderを構築する
+// 各ResourceProviderが内包することを想定している
+func NewTransactorProvider(db *sql.DB, ctx context.Context) TransactorProvider {
+	return &transactorProviderImpl{
+		db:   db,
+		ctx:  ctx,
+		exec: nil,
+	}
+}
+
 // TransactorProviderImpl TransactorProvider実装モジュール
 type transactorProviderImpl struct {
 	db   *sql.DB
