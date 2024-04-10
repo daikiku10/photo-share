@@ -14,3 +14,18 @@ func NewLocalSecret(user, password, host string) *LocalSecret {
 		host:     host,
 	}
 }
+
+// User ユーザー名の取得
+func (ls *LocalSecret) User() string {
+	return ls.user
+}
+
+// Password パスワードの取得
+func (ls *LocalSecret) Password() string {
+	return ls.password
+}
+
+// Host ホスト名の取得
+func (ls *LocalSecret) Host() string {
+	return ls.host
+}
