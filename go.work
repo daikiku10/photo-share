@@ -8,5 +8,6 @@ use (
     ./back/infrastructure/restexe
 
     ./back/sharelib/domain
+    ./back/sharelib/mysql
     ./back/sharelib/timezone
 )
