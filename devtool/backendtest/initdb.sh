@@ -5,7 +5,7 @@
 echo "$0: initializing database"
 find /docker-entrypoint-initdb.d -mindepth 2 -type f | sort | while read f; do
   case "$f" in
-      *.sql)    echo "$0: running $f"; MYSQL_PWD=my-secret-pw mysql -uroot mydb < "$f" 2>&1;;
+      *.sql)    echo "$0: running $f"; MYSQL_PWD=my-secret-pw mysql -uroot photo-share < "$f" 2>&1;;
       *.sql.gz) echo "$0: running $f"; gunzip -c "$f" | "${mysql[@]}" 2>&1;;
       *)        echo "$0: ignoring $f" ;;
   esac
