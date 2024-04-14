@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const ContextKeyTransactor = "_transactor"
+
 type TransactionFilter func(string, string) (bool, *sql.TxOptions)
 
 // DefaultTransactionMiddleware デフォルトトランザクションを制御する
@@ -26,15 +28,15 @@ func DefaultTransactionMiddlewareWithFilter(
 	provider TransactorProvider,
 	filter TransactionFilter,
 ) gin.HandlerFunc {
-	return func(c *gin.Context) {
+	return func(ctx *gin.Context) {
 		// デフォルトトランザクションを開始するか判断
-		toOpen, opts := filter(c.Request.Method, c.Request.URL.Path)
+		toOpen, opts := filter(ctx.Request.Method, ctx.Request.URL.Path)
 
 		// デフォルトTransactorの構築とトランザクション開始
 		trns, err := provider.NewTransactorWithFlag(opts, toOpen)
 		if err != nil {
 			logging.Error("start transaction failed", logging.Err(err))
-			c.AbortWithStatus(http.StatusInternalServerError)
+			ctx.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		defer func() {
@@ -46,5 +48,28 @@ func DefaultTransactionMiddlewareWithFilter(
 				}
 			}
 		}()
+
+		// gin.Contextにトランザクションを格納
+		ctx.Set(ContextKeyTransactor, trns)
+
+		ctx.Next()
+
+		// トランザクション終了
+		if trns.IsOpen() {
+			// 処理成功はCommit, 失敗はRollback
+			if ctx.Writer.Status() == http.StatusOK {
+				logging.Debug("commit...")
+				err = trns.Commit()
+				if err != nil {
+					logging.Error("commit failed", logging.Err(err))
+				}
+			} else {
+				logging.Debug("rollback...")
+				err = trns.Rollback()
+				if err != nil {
+					logging.Error("rollback failed", logging.Err(err))
+				}
+			}
+		}
 	}
 }

@@ -12,6 +12,8 @@ type Transactor interface {
 	IsOpen() bool
 	// Rollback トランザクションをロールバックする
 	Rollback() error
+	// Commit トランザクションをコミットする
+	Commit() error
 }
 
 // TransactorImpl Transactor実装モジュール
@@ -40,6 +42,21 @@ func (trns *transactorImpl) Rollback() (err error) {
 		trns.tx = nil
 	}
 	return
+}
+
+func (trns *transactorImpl) Commit() error {
+	if !trns.IsOpen() {
+		err := fmt.Errorf("トランザクションは開始していません。")
+		return err
+	}
+
+	err := trns.tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	logging.Debug("transaction committed")
+	return nil
 }
 
 // NewTransactorWithOpts Transactorを構築する
