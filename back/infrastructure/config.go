@@ -4,4 +4,5 @@ package infrastructure
 type Configs struct {
 	LogLevel string
 	GinMode  string
+	DBName   string
 }
