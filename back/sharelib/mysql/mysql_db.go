@@ -59,3 +59,7 @@ func (md *MysqlDB) Open() error {
 	logging.Debug("Open成功", logging.Var("MysqlDB", md), logging.Var("db", db))
 	return nil
 }
+
+func (md *MysqlDB) Close() error {
+	return md.db.Close()
+}
