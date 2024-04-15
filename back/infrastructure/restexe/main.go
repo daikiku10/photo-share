@@ -20,7 +20,7 @@ func main() {
 	config := infrastructure.Configs{
 		LogLevel: "debug",
 		GinMode:  gin.DebugMode,
-		DBName:   "photo-share",
+		DBName:   "photo_share",
 	}
 
 	// Logger初期化
