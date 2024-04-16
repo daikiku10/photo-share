@@ -11,14 +11,32 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// PostPhotoRequest defines model for PostPhotoRequest.
+type PostPhotoRequest struct {
+	// Title 写真タイトル
+	Title string `json:"title"`
+}
+
+// PostPhotoSuccessResponse defines model for PostPhotoSuccessResponse.
+type PostPhotoSuccessResponse struct {
+	// Id 登録した写真ID
+	Id int `json:"id"`
+}
+
 // GetPhotoDParams defines parameters for GetPhotoD.
 type GetPhotoDParams struct {
 	// PhotoId 写真ID
 	PhotoId *string `form:"photoId,omitempty" json:"photoId,omitempty"`
 }
 
+// PostPhotoJSONRequestBody defines body for PostPhoto for application/json ContentType.
+type PostPhotoJSONRequestBody = PostPhotoRequest
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// 投稿写真登録API
+	// (POST /photo/create)
+	PostPhoto(c *gin.Context)
 	// テストAPI
 	// (GET /photo/test)
 	GetPhotoD(c *gin.Context, params GetPhotoDParams)
@@ -32,6 +50,19 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(c *gin.Context)
+
+// PostPhoto operation middleware
+func (siw *ServerInterfaceWrapper) PostPhoto(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PostPhoto(c)
+}
 
 // GetPhotoD operation middleware
 func (siw *ServerInterfaceWrapper) GetPhotoD(c *gin.Context) {
@@ -86,5 +117,6 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
+	router.POST(options.BaseURL+"/photo/create", wrapper.PostPhoto)
 	router.GET(options.BaseURL+"/photo/test", wrapper.GetPhotoD)
 }

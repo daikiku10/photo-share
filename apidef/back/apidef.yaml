@@ -35,3 +35,45 @@ paths:
               schema:
                 type: string
                 example: 取得成功です。
+  /photo/create:
+    post:
+      tags:
+        - photo
+      summary: 投稿写真登録API
+      description: 投稿写真を登録するAPIです。
+      operationId: postPhoto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostPhotoRequest"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostPhotoSuccessResponse"
+
+components:
+  schemas:
+    PostPhotoRequest: # 投稿写真登録のリクエスト
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: 写真タイトル
+          example: テスト写真タイトル
+
+    PostPhotoSuccessResponse: # 投稿写真登録の成功レスポンス
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          description: 登録した写真ID
+          example: photoId
