@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"database/sql"
+
+	"github.com/gin-gonic/gin"
 )
 
 // TransactorProvider Transactorを提供するインターフェース
@@ -13,6 +15,10 @@ import (
 type TransactorProvider interface {
 	// NewTransactor Transactorを新規構築する
 	// NewTransactor(opts *sql.TxOptions) (Transactor, error)
+
+	// GetCurrentTransactor gin.Contextに格納されたデフォルトTransactorを取得する
+	GetCurrentTransactor(ctx *gin.Context) Transactor
+
 	// NewTransactorWithFlag トランザクション開始するか判断してTransactorを構築する
 	NewTransactorWithFlag(opts *sql.TxOptions, toOpen bool) (Transactor, error)
 }
@@ -32,6 +38,19 @@ type transactorProviderImpl struct {
 	db   *sql.DB
 	ctx  context.Context
 	exec Transactor
+}
+
+// GetCurrentTransactor gin.Contextに格納されたデフォルトTransactorを取得する
+func (eq *transactorProviderImpl) GetCurrentTransactor(ctx *gin.Context) Transactor {
+	value, found := ctx.Get(ContextKeyTransactor)
+	if found {
+		// 型アサーション valueがTransactorインターフェースを実装しているかのチェック
+		exec, ok := value.(Transactor)
+		if ok {
+			return exec
+		}
+	}
+	return nil
 }
 
 // NewTransactorWithFlag トランザクション開始するか判断してTransactorを構築する
