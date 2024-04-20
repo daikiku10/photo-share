@@ -14,5 +14,6 @@ func (phe PhotoShareErrorCode) Code() int {
 
 // アプリケーションエラー定義
 const (
-	Unknown PhotoShareErrorCode = iota + 1
+	Unknown       PhotoShareErrorCode = iota + 1 // 原因不明のエラー
+	NotAuthorized                                // 必要な権限がない時のエラー
 )
