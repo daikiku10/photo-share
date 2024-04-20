@@ -11,6 +11,12 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// DomainError defines model for DomainError.
+type DomainError struct {
+	Code    *string `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
 // PostPhotoRequest defines model for PostPhotoRequest.
 type PostPhotoRequest struct {
 	// Title 写真タイトル

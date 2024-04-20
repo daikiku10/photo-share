@@ -16,6 +16,12 @@ import (
 	"github.com/oapi-codegen/runtime"
 )
 
+// DomainError defines model for DomainError.
+type DomainError struct {
+	Code    *string `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
 // PostPhotoRequest defines model for PostPhotoRequest.
 type PostPhotoRequest struct {
 	// Title 写真タイトル
@@ -300,6 +306,7 @@ type PostPhotoResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *PostPhotoSuccessResponse
+	JSON500      *DomainError
 }
 
 // Status returns HTTPResponse.Status
@@ -386,6 +393,13 @@ func ParsePostPhotoResponse(rsp *http.Response) (*PostPhotoResponse, error) {
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DomainError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 

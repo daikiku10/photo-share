@@ -55,9 +55,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PostPhotoSuccessResponse"
+        "500":
+          description: 失敗(Internal server error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainError"
 
 components:
   schemas:
+    DomainError: # エラーレスポンス
+      type: object
+      properties:
+        code:
+          type: string
+          example: 001-000001
+        message:
+          type: string
+          example: エラーメッセージ
     PostPhotoRequest: # 投稿写真登録のリクエスト
       type: object
       required:
