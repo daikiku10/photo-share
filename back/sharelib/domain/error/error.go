@@ -14,6 +14,14 @@ type DomainError struct {
 	Code  ErrorCode
 }
 
+// NewError エラーコードを元にエラーを返す
+func NewError(code ErrorCode) *DomainError {
+	return &DomainError{
+		Inner: nil,
+		Code:  code,
+	}
+}
+
 // NewErrorWithInner システムエラーによるエラー生成の場合は、エラーコードを元にしたエラーに加えて、生成されたエラーを返す
 func NewErrorWithInner(code ErrorCode, inner error) *DomainError {
 	return &DomainError{
