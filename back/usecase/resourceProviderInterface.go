@@ -1,12 +1,12 @@
 package usecase
 
 import (
-	repolib "photo-share/back/sharelib/domain/repository"
+	Repolib "photo-share/back/sharelib/domain/repository"
 )
 
 // ResourceProviderの設計書
 type ResourceProviderInterface interface {
-	repolib.TransactorProvider
+	Repolib.TransactorProvider
 	// リポジトリ
-	PhotoShareRepository() (PhotoShareRepositoryInterface, error)
+	NewRepository(trns Repolib.Transactor) (PhotoShareRepositoryInterface, error)
 }

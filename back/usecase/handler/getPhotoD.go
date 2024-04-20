@@ -9,5 +9,4 @@ import (
 // GetPhotoD テストAPI
 // (GET /photo/test)
 func (s *Server) GetPhotoD(c *gin.Context, params server.GetPhotoDParams) {
-	s.resourceProvider.PhotoShareRepository()
 }

@@ -1,8 +1,16 @@
 package repository
 
-type PhotoShareRepository struct{}
+import (
+	Repolib "photo-share/back/sharelib/domain/repository"
+)
 
-func NewPhotoShareRepository() (*PhotoShareRepository, error) {
-	repo := &PhotoShareRepository{}
+type PhotoShareRepository struct {
+	trns Repolib.Transactor
+}
+
+func NewPhotoShareRepository(trns Repolib.Transactor) (*PhotoShareRepository, error) {
+	repo := &PhotoShareRepository{
+		trns: trns,
+	}
 	return repo, nil
 }

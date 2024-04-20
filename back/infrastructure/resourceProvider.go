@@ -24,6 +24,6 @@ func NewResourceProvider(
 	}
 }
 
-func (rp *ResourceProvider) PhotoShareRepository() (usecase.PhotoShareRepositoryInterface, error) {
-	return repository.NewPhotoShareRepository()
+func (rp *ResourceProvider) NewRepository(trns Repolib.Transactor) (usecase.PhotoShareRepositoryInterface, error) {
+	return repository.NewPhotoShareRepository(trns)
 }
