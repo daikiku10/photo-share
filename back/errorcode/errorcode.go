@@ -16,4 +16,5 @@ func (phe PhotoShareErrorCode) Code() int {
 const (
 	Unknown       PhotoShareErrorCode = iota + 1 // 原因不明のエラー
 	NotAuthorized                                // 必要な権限がない時のエラー
+	Validation
 )
