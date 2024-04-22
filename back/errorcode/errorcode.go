@@ -14,7 +14,9 @@ func (phe PhotoShareErrorCode) Code() int {
 
 // アプリケーションエラー定義
 const (
-	Unknown       PhotoShareErrorCode = iota + 1 // 原因不明のエラー
-	NotAuthorized                                // 必要な権限がない時のエラー
-	Validation
+	Unknown            PhotoShareErrorCode = iota + 1 // 原因不明のエラー
+	NotAuthorized                                     // 必要な権限がない時のエラー
+	Validation                                        // バリデーションエラー
+	RecordInsertFailed                                // Saveメソッド内で、データの作成に失敗した時のエラー
+	RecordUpdateFailed                                // Saveメソッド内で、データの更新に失敗した時のエラー
 )
