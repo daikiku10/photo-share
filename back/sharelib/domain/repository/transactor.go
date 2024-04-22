@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"photo-share/back/sharelib/domain/logging"
+
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 type Transactor interface {
@@ -14,6 +16,11 @@ type Transactor interface {
 	Rollback() error
 	// Commit トランザクションをコミットする
 	Commit() error
+	// Context 紐づくContextを返す
+	Context() context.Context
+	// Get 有効なContextTransactorを返す
+	// トランザクション開始前ならsql.DBそのもの、トランザクション中はsql.Txを返す
+	Get() boil.ContextExecutor
 }
 
 // TransactorImpl Transactor実装モジュール
@@ -44,6 +51,7 @@ func (trns *transactorImpl) Rollback() (err error) {
 	return
 }
 
+// Commit トランザクションをコミットする
 func (trns *transactorImpl) Commit() error {
 	if !trns.IsOpen() {
 		err := fmt.Errorf("トランザクションは開始していません。")
@@ -57,6 +65,21 @@ func (trns *transactorImpl) Commit() error {
 
 	logging.Debug("transaction committed")
 	return nil
+}
+
+// Context 紐づくContextを返す
+func (trns *transactorImpl) Context() context.Context {
+	return trns.ctx
+}
+
+// Get 有効なContextTransactorを返す
+// トランザクション開始前ならsql.DBそのもの、トランザクション中はsql.Txを返す
+func (trns *transactorImpl) Get() boil.ContextExecutor {
+	if trns.IsOpen() {
+		return trns.tx
+	} else {
+		return trns.db
+	}
 }
 
 // NewTransactorWithOpts Transactorを構築する
