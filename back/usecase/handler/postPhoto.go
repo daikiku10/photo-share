@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"photo-share/back/infrastructure/restexe/apidef/server"
+	"photo-share/back/sharelib/user"
 	"photo-share/back/usecase/converter"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,7 @@ import (
 // (POST /photo/create)
 func (s *Server) PostPhoto(ctx *gin.Context) {
 	// TODO: ヘッダーにユーザー情報を受け取れるようにする
-	user := ""
+	user := &user.User{}
 	// user, errHeader := user.NewWithBase64Json("")
 	// if errHeader != nil {
 	// 	ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(DomainError.NewErrorWithInner(ErrorCode.NotAuthorized, errHeader)))
@@ -36,6 +36,22 @@ func (s *Server) PostPhoto(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(errBind))
 		return
 	}
-	fmt.Println(user, repo)
-	fmt.Print(requestBody)
+
+	// ドメインに変換する
+	photoObject, errNew := converter.ToDomain(requestBody, user)
+	if errNew != nil {
+		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(errNew))
+		return
+	}
+
+	errSave := repo.Save(photoObject, user)
+	if errSave != nil {
+		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(errSave))
+		return
+	}
+
+	dto := server.PostPhotoSuccessResponse{
+		Id: string(photoObject.Id()),
+	}
+	ctx.JSON(http.StatusOK, dto)
 }
