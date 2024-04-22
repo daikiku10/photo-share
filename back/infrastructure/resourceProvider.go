@@ -3,7 +3,7 @@ package infrastructure
 import (
 	"context"
 	"database/sql"
-	"photo-share/back/repository"
+	"photo-share/back/repository/photos"
 	Repolib "photo-share/back/sharelib/domain/repository"
 	"photo-share/back/usecase"
 )
@@ -25,5 +25,5 @@ func NewResourceProvider(
 }
 
 func (rp *ResourceProvider) NewRepository(trns Repolib.Transactor) (usecase.PhotoShareRepositoryInterface, error) {
-	return repository.NewPhotoShareRepository(trns)
+	return photos.NewPhotoShareRepository(trns)
 }
