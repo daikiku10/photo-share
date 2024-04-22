@@ -89,6 +89,6 @@ components:
         - id
       properties:
         id:
-          type: integer
+          type: string
           description: 登録した写真ID
           example: photoId

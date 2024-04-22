@@ -26,7 +26,7 @@ type PostPhotoRequest struct {
 // PostPhotoSuccessResponse defines model for PostPhotoSuccessResponse.
 type PostPhotoSuccessResponse struct {
 	// Id 登録した写真ID
-	Id int `json:"id"`
+	Id string `json:"id"`
 }
 
 // GetPhotoDParams defines parameters for GetPhotoD.
