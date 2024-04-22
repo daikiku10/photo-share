@@ -1,0 +1,25 @@
+pkgname = "internal"
+output = "internal"
+wipe = true
+no-tests = true
+
+[mysql]
+    dbname = "photo_share"
+    host = "localhost"
+    port = 3306
+    user = "root"
+    pass = "my-secret-pw"
+    sslmode = "false"
+    blacklist = ["*.create_at", "*.update_at"]
+
+[aliases.tables.photos]
+    up_plural = "PluralPhotos"
+    up_singular = "Photos"
+    down_plural = "pluralPhotos"
+    down_singular = "photos"
+
+[aliases.tables.old_photos]
+    up_plural = "OldPluralPhotos"
+    up_singular = "OldPhotos"
+    down_plural = "oldPluralPhotos"
+    down_singular = "oldPhotos"
