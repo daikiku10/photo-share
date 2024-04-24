@@ -8,7 +8,9 @@ import (
 // ToDTO DTOに変換する
 func ToDTO(src *domain.Photo) *internal.Photos {
 	return &internal.Photos{
-		ID:    string(src.Id()),
-		Title: src.Title(),
+		ID:        string(src.Id()),
+		Title:     src.Title(),
+		CreatedBy: src.CreatedBy(),
+		UpdatedBy: src.UpdateBy(),
 	}
 }

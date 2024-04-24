@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"photo-share/back/infrastructure/restexe/apidef/server"
 	"photo-share/back/sharelib/user"
@@ -13,7 +14,7 @@ import (
 // (POST /photo/create)
 func (s *Server) PostPhoto(ctx *gin.Context) {
 	// TODO: ヘッダーにユーザー情報を受け取れるようにする
-	user := &user.User{}
+	user := user.New("user1")
 	// user, errHeader := user.NewWithBase64Json("")
 	// if errHeader != nil {
 	// 	ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(DomainError.NewErrorWithInner(ErrorCode.NotAuthorized, errHeader)))
@@ -43,6 +44,8 @@ func (s *Server) PostPhoto(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(errNew))
 		return
 	}
+	fmt.Println("テスト！！！")
+	fmt.Printf("%+v", photoObject)
 
 	errSave := repo.Save(photoObject, user)
 	if errSave != nil {

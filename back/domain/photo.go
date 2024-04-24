@@ -27,17 +27,28 @@ type Photo struct {
 // New IDを新規採番してオブジェクトを生成する
 func New(
 	title string,
+	createdBy string,
+	updatedBy string,
 ) (*Photo, error) {
 	return NewForRepository(
 		Id(ulid.Make().String()),
 		title,
+		createdBy,
+		updatedBy,
 	)
 }
 
 // NewForRepository 全データを指定してオブジェクトの生成する
-func NewForRepository(id Id, title string) (*Photo, error) {
+func NewForRepository(
+	id Id,
+	title string,
+	createdBy string,
+	updatedBy string,
+) (*Photo, error) {
 	photo := &Photo{
-		id: id,
+		id:        id,
+		createdBy: createdBy,
+		updateBy:  updatedBy,
 	}
 
 	err := photo.Edit(title)
