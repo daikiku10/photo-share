@@ -18,8 +18,10 @@ const (
 
 // go:generate accessor -type=Photo
 type Photo struct {
-	id    Id
-	title string
+	id        Id
+	title     string
+	createdBy string
+	updateBy  string
 }
 
 // New IDを新規採番してオブジェクトを生成する
