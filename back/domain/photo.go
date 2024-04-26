@@ -18,23 +18,17 @@ const (
 
 // go:generate accessor -type=Photo
 type Photo struct {
-	id        Id
-	title     string
-	createdBy string
-	updateBy  string
+	id    Id
+	title string
 }
 
 // New IDを新規採番してオブジェクトを生成する
 func New(
 	title string,
-	createdBy string,
-	updatedBy string,
 ) (*Photo, error) {
 	return NewForRepository(
 		Id(ulid.Make().String()),
 		title,
-		createdBy,
-		updatedBy,
 	)
 }
 
@@ -42,13 +36,9 @@ func New(
 func NewForRepository(
 	id Id,
 	title string,
-	createdBy string,
-	updatedBy string,
 ) (*Photo, error) {
 	photo := &Photo{
-		id:        id,
-		createdBy: createdBy,
-		updateBy:  updatedBy,
+		id: id,
 	}
 
 	err := photo.Edit(title)

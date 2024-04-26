@@ -11,13 +11,3 @@ func (t Photo) Id() Id {
 func (t Photo) Title() string {
 	return t.title
 }
-
-// CreatedBy return createdBy value
-func (t Photo) CreatedBy() string {
-	return t.createdBy
-}
-
-// UpdateBy return updateBy value
-func (t Photo) UpdateBy() string {
-	return t.updateBy
-}

@@ -10,7 +10,5 @@ import (
 func ToDomain(requestBody server.PostPhotoRequest, user *user.User) (*domain.Photo, error) {
 	return domain.New(
 		requestBody.Title,
-		string(user.Id()),
-		string(user.Id()),
 	)
 }
