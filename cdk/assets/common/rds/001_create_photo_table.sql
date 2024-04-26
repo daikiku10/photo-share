@@ -2,6 +2,7 @@ SET NAMES 'utf8mb4';
 DROP DATABASE IF EXISTS photo_share;
 CREATE DATABASE IF NOT EXISTS photo_share CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreatePhotos
 CREATE TABLE `photo_share`.`photos` (
     `id` char(26) not null COMMENT '主キー',
     `created_at` datetime not null default current_timestamp COMMENT '作成日時',
@@ -12,4 +13,16 @@ CREATE TABLE `photo_share`.`photos` (
     `categoryId` char(26) not null COMMENT 'カテゴリID',
     CONSTRAINT `Photo_pkey` PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='写真'
+    ;
+
+-- CreateCategory
+CREATE TABLE `photo_share`.`category` (
+    `id` char(26) not null COMMENT '主キー',
+    `created_at` datetime not null default current_timestamp COMMENT '作成日時',
+    `name` varchar(255) not null COMMENT 'カテゴリ名',
+    `label` varchar(255) not null COMMENT 'ラベル',
+    `description` varchar(255) not null COMMENT '説明',
+    `imageUrl` varchar(255) not null COMMENT '写真URL',
+    CONSTRAINT `Category_pkey` PRIMARY KEY(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='カテゴリ'
     ;
