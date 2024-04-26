@@ -1,0 +1,29 @@
+name: 作業チケット
+description: 通常の開発作業をチケットとして起票するためのテンプレート
+# project:
+#   - "photo-share/1"
+body:
+  - type: textarea
+    attributes:
+      label: 対応内容
+      description: 開発作業の概要を記載してください
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 目的
+      description: 開発作業を行う目的を記載してください
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: 完了条件
+      description: このチケットが完了する条件を記載してください
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: 備考
+      description: 開発作業に関する備考を記載してください。
+    validations:
+      required: false
