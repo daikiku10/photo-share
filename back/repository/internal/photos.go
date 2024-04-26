@@ -24,51 +24,57 @@ import (
 // Photos is an object representing the database table.
 type Photos struct { // 主キー
 	ID string `boil:"id" json:"id" toml:"id" yaml:"id"`
-	// 写真タイトル
-	Title string `boil:"title" json:"title" toml:"title" yaml:"title"`
-	// 作成者
-	CreatedBy string `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
-	// 更新者
-	UpdatedBy string `boil:"updated_by" json:"updated_by" toml:"updated_by" yaml:"updated_by"`
 	// 作成日時
 	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	// 更新日時
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	// 写真タイトル
+	Title string `boil:"title" json:"title" toml:"title" yaml:"title"`
+	// 説明
+	Description string `boil:"description" json:"description" toml:"description" yaml:"description"`
+	// 写真URL
+	ImageUrl string `boil:"imageUrl" json:"imageUrl" toml:"imageUrl" yaml:"imageUrl"`
+	// 投稿者ID
+	UserId string `boil:"userId" json:"userId" toml:"userId" yaml:"userId"`
+	// カテゴリID
+	CategoryId string `boil:"categoryId" json:"categoryId" toml:"categoryId" yaml:"categoryId"`
 
 	R *photosR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L photosL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var PhotosColumns = struct {
-	ID        string
-	Title     string
-	CreatedBy string
-	UpdatedBy string
-	CreatedAt string
-	UpdatedAt string
+	ID          string
+	CreatedAt   string
+	Title       string
+	Description string
+	ImageUrl    string
+	UserId      string
+	CategoryId  string
 }{
-	ID:        "id",
-	Title:     "title",
-	CreatedBy: "created_by",
-	UpdatedBy: "updated_by",
-	CreatedAt: "created_at",
-	UpdatedAt: "updated_at",
+	ID:          "id",
+	CreatedAt:   "created_at",
+	Title:       "title",
+	Description: "description",
+	ImageUrl:    "imageUrl",
+	UserId:      "userId",
+	CategoryId:  "categoryId",
 }
 
 var PhotosTableColumns = struct {
-	ID        string
-	Title     string
-	CreatedBy string
-	UpdatedBy string
-	CreatedAt string
-	UpdatedAt string
+	ID          string
+	CreatedAt   string
+	Title       string
+	Description string
+	ImageUrl    string
+	UserId      string
+	CategoryId  string
 }{
-	ID:        "photos.id",
-	Title:     "photos.title",
-	CreatedBy: "photos.created_by",
-	UpdatedBy: "photos.updated_by",
-	CreatedAt: "photos.created_at",
-	UpdatedAt: "photos.updated_at",
+	ID:          "photos.id",
+	CreatedAt:   "photos.created_at",
+	Title:       "photos.title",
+	Description: "photos.description",
+	ImageUrl:    "photos.imageUrl",
+	UserId:      "photos.userId",
+	CategoryId:  "photos.categoryId",
 }
 
 // Generated where
@@ -120,19 +126,21 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 }
 
 var PhotosWhere = struct {
-	ID        whereHelperstring
-	Title     whereHelperstring
-	CreatedBy whereHelperstring
-	UpdatedBy whereHelperstring
-	CreatedAt whereHelpertime_Time
-	UpdatedAt whereHelpertime_Time
+	ID          whereHelperstring
+	CreatedAt   whereHelpertime_Time
+	Title       whereHelperstring
+	Description whereHelperstring
+	ImageUrl    whereHelperstring
+	UserId      whereHelperstring
+	CategoryId  whereHelperstring
 }{
-	ID:        whereHelperstring{field: "`photos`.`id`"},
-	Title:     whereHelperstring{field: "`photos`.`title`"},
-	CreatedBy: whereHelperstring{field: "`photos`.`created_by`"},
-	UpdatedBy: whereHelperstring{field: "`photos`.`updated_by`"},
-	CreatedAt: whereHelpertime_Time{field: "`photos`.`created_at`"},
-	UpdatedAt: whereHelpertime_Time{field: "`photos`.`updated_at`"},
+	ID:          whereHelperstring{field: "`photos`.`id`"},
+	CreatedAt:   whereHelpertime_Time{field: "`photos`.`created_at`"},
+	Title:       whereHelperstring{field: "`photos`.`title`"},
+	Description: whereHelperstring{field: "`photos`.`description`"},
+	ImageUrl:    whereHelperstring{field: "`photos`.`imageUrl`"},
+	UserId:      whereHelperstring{field: "`photos`.`userId`"},
+	CategoryId:  whereHelperstring{field: "`photos`.`categoryId`"},
 }
 
 // PhotosRels is where relationship names are stored.
@@ -152,9 +160,9 @@ func (*photosR) NewStruct() *photosR {
 type photosL struct{}
 
 var (
-	photosAllColumns            = []string{"id", "title", "created_by", "updated_by", "created_at", "updated_at"}
-	photosColumnsWithoutDefault = []string{"id", "title", "created_by", "updated_by"}
-	photosColumnsWithDefault    = []string{"created_at", "updated_at"}
+	photosAllColumns            = []string{"id", "created_at", "title", "description", "imageUrl", "userId", "categoryId"}
+	photosColumnsWithoutDefault = []string{"id", "title", "description", "imageUrl", "userId", "categoryId"}
+	photosColumnsWithDefault    = []string{"created_at"}
 	photosPrimaryKeyColumns     = []string{"id"}
 	photosGeneratedColumns      = []string{}
 )
@@ -519,9 +527,6 @@ func (o *Photos) Insert(ctx context.Context, exec boil.ContextExecutor, columns 
 		if o.CreatedAt.IsZero() {
 			o.CreatedAt = currTime
 		}
-		if o.UpdatedAt.IsZero() {
-			o.UpdatedAt = currTime
-		}
 	}
 
 	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
@@ -614,12 +619,6 @@ CacheNoHooks:
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *Photos) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
-	if !boil.TimestampsAreSkipped(ctx) {
-		currTime := time.Now().In(boil.GetLocation())
-
-		o.UpdatedAt = currTime
-	}
-
 	var err error
 	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
 		return 0, err
@@ -760,7 +759,6 @@ func (o *Photos) Upsert(ctx context.Context, exec boil.ContextExecutor, updateCo
 		if o.CreatedAt.IsZero() {
 			o.CreatedAt = currTime
 		}
-		o.UpdatedAt = currTime
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
