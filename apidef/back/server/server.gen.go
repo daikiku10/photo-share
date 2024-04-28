@@ -4,7 +4,11 @@
 package server
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/oapi-codegen/runtime"
 )
 
 // DomainError defines model for DomainError.
@@ -37,14 +41,47 @@ type PostPhotoSuccessResponse struct {
 	Id string `json:"id"`
 }
 
+// PutPhotoRequest defines model for PutPhotoRequest.
+type PutPhotoRequest struct {
+	// AuthorId 投稿者ID
+	AuthorId string `json:"authorId"`
+
+	// CategoryId カテゴリID
+	CategoryId string `json:"categoryId"`
+
+	// Description 写真の説明
+	Description string `json:"description"`
+
+	// Id 投稿写真ID
+	Id string `json:"id"`
+
+	// ImageUrl 写真URL
+	ImageUrl string `json:"imageUrl"`
+
+	// Title 写真タイトル
+	Title string `json:"title"`
+}
+
+// PutPhotoSuccessResponse defines model for PutPhotoSuccessResponse.
+type PutPhotoSuccessResponse struct {
+	// Id 編集した写真ID
+	Id string `json:"id"`
+}
+
 // PostPhotoJSONRequestBody defines body for PostPhoto for application/json ContentType.
 type PostPhotoJSONRequestBody = PostPhotoRequest
+
+// PutPhotoJSONRequestBody defines body for PutPhoto for application/json ContentType.
+type PutPhotoJSONRequestBody = PutPhotoRequest
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// 投稿写真登録API
 	// (POST /photos)
 	PostPhoto(c *gin.Context)
+	// 投稿写真編集API
+	// (PUT /photos/{photoId})
+	PutPhoto(c *gin.Context, photoId string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -67,6 +104,30 @@ func (siw *ServerInterfaceWrapper) PostPhoto(c *gin.Context) {
 	}
 
 	siw.Handler.PostPhoto(c)
+}
+
+// PutPhoto operation middleware
+func (siw *ServerInterfaceWrapper) PutPhoto(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "photoId" -------------
+	var photoId string
+
+	err = runtime.BindStyledParameter("simple", false, "photoId", c.Param("photoId"), &photoId)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter photoId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.PutPhoto(c, photoId)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -97,4 +158,5 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.POST(options.BaseURL+"/photos", wrapper.PostPhoto)
+	router.PUT(options.BaseURL+"/photos/:photoId", wrapper.PutPhoto)
 }
