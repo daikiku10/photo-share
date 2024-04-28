@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"photo-share/back/infrastructure/restexe/apidef/server"
 	"photo-share/back/sharelib/user"
@@ -11,7 +10,7 @@ import (
 )
 
 // PostPhoto 投稿写真登録API
-// (POST /photo/create)
+// (POST /photos)
 func (s *Server) PostPhoto(ctx *gin.Context) {
 	// TODO: ヘッダーにユーザー情報を受け取れるようにする
 	user := user.New("user1")
@@ -44,8 +43,6 @@ func (s *Server) PostPhoto(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(errNew))
 		return
 	}
-	fmt.Println("テスト！！！")
-	fmt.Printf("%+v", photoObject)
 
 	errSave := repo.Save(photoObject, user)
 	if errSave != nil {
