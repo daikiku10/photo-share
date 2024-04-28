@@ -12,8 +12,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/oapi-codegen/runtime"
 )
 
 // DomainError defines model for DomainError.
@@ -24,6 +22,18 @@ type DomainError struct {
 
 // PostPhotoRequest defines model for PostPhotoRequest.
 type PostPhotoRequest struct {
+	// AuthorId 投稿者ID
+	AuthorId *string `json:"authorId,omitempty"`
+
+	// CategoryId カテゴリID
+	CategoryId *string `json:"categoryId,omitempty"`
+
+	// Description 写真の説明
+	Description *string `json:"description,omitempty"`
+
+	// ImageUrl 写真URL
+	ImageUrl *string `json:"imageUrl,omitempty"`
+
 	// Title 写真タイトル
 	Title string `json:"title"`
 }
@@ -32,12 +42,6 @@ type PostPhotoRequest struct {
 type PostPhotoSuccessResponse struct {
 	// Id 登録した写真ID
 	Id string `json:"id"`
-}
-
-// GetPhotoDParams defines parameters for GetPhotoD.
-type GetPhotoDParams struct {
-	// PhotoId 写真ID
-	PhotoId *string `form:"photoId,omitempty" json:"photoId,omitempty"`
 }
 
 // PostPhotoJSONRequestBody defines body for PostPhoto for application/json ContentType.
@@ -120,9 +124,6 @@ type ClientInterface interface {
 	PostPhotoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PostPhoto(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetPhotoD request
-	GetPhotoD(ctx context.Context, params *GetPhotoDParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) PostPhotoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -139,18 +140,6 @@ func (c *Client) PostPhotoWithBody(ctx context.Context, contentType string, body
 
 func (c *Client) PostPhoto(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostPhotoRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetPhotoD(ctx context.Context, params *GetPhotoDParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetPhotoDRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +170,7 @@ func NewPostPhotoRequestWithBody(server string, contentType string, body io.Read
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/photo/create")
+	operationPath := fmt.Sprintf("/photos")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -197,55 +186,6 @@ func NewPostPhotoRequestWithBody(server string, contentType string, body io.Read
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewGetPhotoDRequest generates requests for GetPhotoD
-func NewGetPhotoDRequest(server string, params *GetPhotoDParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/photo/test")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.PhotoId != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "photoId", runtime.ParamLocationQuery, *params.PhotoId); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -297,9 +237,6 @@ type ClientWithResponsesInterface interface {
 	PostPhotoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
 
 	PostPhotoWithResponse(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
-
-	// GetPhotoDWithResponse request
-	GetPhotoDWithResponse(ctx context.Context, params *GetPhotoDParams, reqEditors ...RequestEditorFn) (*GetPhotoDResponse, error)
 }
 
 type PostPhotoResponse struct {
@@ -325,28 +262,6 @@ func (r PostPhotoResponse) StatusCode() int {
 	return 0
 }
 
-type GetPhotoDResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *string
-}
-
-// Status returns HTTPResponse.Status
-func (r GetPhotoDResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetPhotoDResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 // PostPhotoWithBodyWithResponse request with arbitrary body returning *PostPhotoResponse
 func (c *ClientWithResponses) PostPhotoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error) {
 	rsp, err := c.PostPhotoWithBody(ctx, contentType, body, reqEditors...)
@@ -362,15 +277,6 @@ func (c *ClientWithResponses) PostPhotoWithResponse(ctx context.Context, body Po
 		return nil, err
 	}
 	return ParsePostPhotoResponse(rsp)
-}
-
-// GetPhotoDWithResponse request returning *GetPhotoDResponse
-func (c *ClientWithResponses) GetPhotoDWithResponse(ctx context.Context, params *GetPhotoDParams, reqEditors ...RequestEditorFn) (*GetPhotoDResponse, error) {
-	rsp, err := c.GetPhotoD(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetPhotoDResponse(rsp)
 }
 
 // ParsePostPhotoResponse parses an HTTP response from a PostPhotoWithResponse call
@@ -400,32 +306,6 @@ func ParsePostPhotoResponse(rsp *http.Response) (*PostPhotoResponse, error) {
 			return nil, err
 		}
 		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetPhotoDResponse parses an HTTP response from a GetPhotoDWithResponse call
-func ParseGetPhotoDResponse(rsp *http.Response) (*GetPhotoDResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetPhotoDResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest string
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
 
 	}
 
