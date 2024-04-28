@@ -1,7 +1,7 @@
 package photos
 
 import (
-	"photo-share/back/domain"
+	"photo-share/back/domain/photo"
 	"photo-share/back/errorcode"
 	"photo-share/back/repository/internal"
 	DomainError "photo-share/back/sharelib/domain/error"
@@ -25,7 +25,7 @@ func NewPhotoShareRepository(trns Repolib.Transactor) (*PhotoShareRepository, er
 }
 
 // Save 写真を保存する
-func (pr *PhotoShareRepository) Save(photo *domain.Photo, user *user.User) error {
+func (pr *PhotoShareRepository) Save(photo *photo.Photo, user *user.User) error {
 	mods := []qm.QueryMod{
 		internal.PhotosWhere.ID.EQ(string(photo.Id())),
 		qm.For("update"),

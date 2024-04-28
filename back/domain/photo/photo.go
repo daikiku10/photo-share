@@ -1,4 +1,4 @@
-package domain
+package photo
 
 import (
 	"photo-share/back/errorcode"
@@ -18,8 +18,12 @@ const (
 
 // go:generate accessor -type=Photo
 type Photo struct {
-	id    Id
-	title string
+	id          Id
+	title       string
+	description string
+	imageUrl    string
+	authorId    string
+	categoryId  string
 }
 
 // New IDを新規採番してオブジェクトを生成する
