@@ -8,5 +8,6 @@ import (
 type ResourceProviderInterface interface {
 	Repolib.TransactorProvider
 	// リポジトリ
-	NewRepository(trns Repolib.Transactor) (PhotoShareRepositoryInterface, error)
+	// PhotosRepository　写真リポジトリ
+	PhotosRepository(trns Repolib.Transactor) (PhotoShareRepositoryInterface, error)
 }

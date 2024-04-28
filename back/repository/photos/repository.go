@@ -13,19 +13,19 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-type PhotoShareRepository struct {
+type PhotosRepository struct {
 	trns Repolib.Transactor
 }
 
-func NewPhotoShareRepository(trns Repolib.Transactor) (*PhotoShareRepository, error) {
-	repo := &PhotoShareRepository{
+func NewPhotosRepository(trns Repolib.Transactor) (*PhotosRepository, error) {
+	repo := &PhotosRepository{
 		trns: trns,
 	}
 	return repo, nil
 }
 
 // Save 写真を保存する
-func (pr *PhotoShareRepository) Save(photo *photo.Photo, user *user.User) error {
+func (pr *PhotosRepository) Save(photo *photo.Photo, user *user.User) error {
 	mods := []qm.QueryMod{
 		internal.PhotosWhere.ID.EQ(string(photo.Id())),
 		qm.For("update"),

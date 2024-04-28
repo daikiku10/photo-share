@@ -24,6 +24,7 @@ func NewResourceProvider(
 	}
 }
 
-func (rp *ResourceProvider) NewRepository(trns Repolib.Transactor) (usecase.PhotoShareRepositoryInterface, error) {
-	return photos.NewPhotoShareRepository(trns)
+// PhotosRepository 写真リポジトリの作成
+func (rp *ResourceProvider) PhotosRepository(trns Repolib.Transactor) (usecase.PhotoShareRepositoryInterface, error) {
+	return photos.NewPhotosRepository(trns)
 }

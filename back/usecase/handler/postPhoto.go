@@ -23,7 +23,7 @@ func (s *Server) PostPhoto(ctx *gin.Context) {
 	// トランザクションの取得
 	transactor := s.resourceProvider.GetCurrentTransactor(ctx)
 	// リポジトリの取得
-	repo, errRepo := s.resourceProvider.NewRepository(transactor)
+	repo, errRepo := s.resourceProvider.PhotosRepository(transactor)
 	if errRepo != nil {
 		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(errRepo))
 		return
