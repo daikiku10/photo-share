@@ -23,16 +23,16 @@ type DomainError struct {
 // PostPhotoRequest defines model for PostPhotoRequest.
 type PostPhotoRequest struct {
 	// AuthorId 投稿者ID
-	AuthorId *string `json:"authorId,omitempty"`
+	AuthorId string `json:"authorId"`
 
 	// CategoryId カテゴリID
-	CategoryId *string `json:"categoryId,omitempty"`
+	CategoryId string `json:"categoryId"`
 
 	// Description 写真の説明
-	Description *string `json:"description,omitempty"`
+	Description string `json:"description"`
 
 	// ImageUrl 写真URL
-	ImageUrl *string `json:"imageUrl,omitempty"`
+	ImageUrl string `json:"imageUrl"`
 
 	// Title 写真タイトル
 	Title string `json:"title"`

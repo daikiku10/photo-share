@@ -1,4 +1,4 @@
-package domain
+package photo
 
 import (
 	"photo-share/back/errorcode"
@@ -14,21 +14,35 @@ type Id string
 const (
 	// maxTitleLength タイトルの最大文字数
 	maxTitleLength = 100
+	// maxDescriptionLength 説明のの最大文字数
+	maxDescriptionLength = 100
 )
 
 // go:generate accessor -type=Photo
 type Photo struct {
-	id    Id
-	title string
+	id          Id
+	title       string
+	description string
+	imageUrl    string
+	authorId    string
+	categoryId  string
 }
 
 // New IDを新規採番してオブジェクトを生成する
 func New(
 	title string,
+	description string,
+	imageUrl string,
+	authorId string,
+	categoryId string,
 ) (*Photo, error) {
 	return NewForRepository(
 		Id(ulid.Make().String()),
 		title,
+		description,
+		imageUrl,
+		authorId,
+		categoryId,
 	)
 }
 
@@ -36,12 +50,19 @@ func New(
 func NewForRepository(
 	id Id,
 	title string,
+	description string,
+	imageUrl string,
+	authorId string,
+	categoryId string,
 ) (*Photo, error) {
 	photo := &Photo{
-		id: id,
+		id:         id,
+		imageUrl:   imageUrl,
+		authorId:   authorId,
+		categoryId: categoryId,
 	}
 
-	err := photo.Edit(title)
+	err := photo.Edit(title, description)
 	if err != nil {
 		return nil, err
 	}
@@ -50,12 +71,20 @@ func NewForRepository(
 }
 
 // Edit 編集、バリデーションを行う
-func (photo *Photo) Edit(title string) error {
+func (photo *Photo) Edit(
+	title string,
+	description string,
+) error {
 	// バリデーションを行う
 	if title == "" || utf8.RuneCountInString(title) > maxTitleLength {
 		logging.Error("titleの値が空文字か101文字以上です", logging.Var("photoId", photo.id))
 		return DomainError.NewError(errorcode.Validation)
 	}
+	if utf8.RuneCountInString(description) > maxDescriptionLength {
+		logging.Error("descriptionの値が空文字か101文字以上です", logging.Var("photoId", photo.id))
+		return DomainError.NewError(errorcode.Validation)
+	}
 	photo.title = title
+	photo.description = description
 	return nil
 }

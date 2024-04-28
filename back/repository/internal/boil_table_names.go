@@ -4,7 +4,13 @@
 package internal
 
 var TableNames = struct {
-	Photos string
+	Category string
+	Comment  string
+	Like     string
+	Photos   string
 }{
-	Photos: "photos",
+	Category: "category",
+	Comment:  "comment",
+	Like:     "like",
+	Photos:   "photos",
 }
