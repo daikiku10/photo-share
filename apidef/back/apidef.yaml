@@ -55,6 +55,10 @@ components:
       type: object
       required:
         - title
+        - description
+        - imageUrl
+        - authorId
+        - categoryId
       properties:
         title:
           type: string
