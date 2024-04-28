@@ -33,7 +33,7 @@ type Photos struct { // 主キー
 	// 写真URL
 	ImageUrl string `boil:"imageUrl" json:"imageUrl" toml:"imageUrl" yaml:"imageUrl"`
 	// 投稿者ID
-	UserId string `boil:"userId" json:"userId" toml:"userId" yaml:"userId"`
+	AuthorId string `boil:"authorId" json:"authorId" toml:"authorId" yaml:"authorId"`
 	// カテゴリID
 	CategoryId string `boil:"categoryId" json:"categoryId" toml:"categoryId" yaml:"categoryId"`
 
@@ -47,7 +47,7 @@ var PhotosColumns = struct {
 	Title       string
 	Description string
 	ImageUrl    string
-	UserId      string
+	AuthorId    string
 	CategoryId  string
 }{
 	ID:          "id",
@@ -55,7 +55,7 @@ var PhotosColumns = struct {
 	Title:       "title",
 	Description: "description",
 	ImageUrl:    "imageUrl",
-	UserId:      "userId",
+	AuthorId:    "authorId",
 	CategoryId:  "categoryId",
 }
 
@@ -65,7 +65,7 @@ var PhotosTableColumns = struct {
 	Title       string
 	Description string
 	ImageUrl    string
-	UserId      string
+	AuthorId    string
 	CategoryId  string
 }{
 	ID:          "photos.id",
@@ -73,57 +73,11 @@ var PhotosTableColumns = struct {
 	Title:       "photos.title",
 	Description: "photos.description",
 	ImageUrl:    "photos.imageUrl",
-	UserId:      "photos.userId",
+	AuthorId:    "photos.authorId",
 	CategoryId:  "photos.categoryId",
 }
 
 // Generated where
-
-type whereHelperstring struct{ field string }
-
-func (w whereHelperstring) EQ(x string) qm.QueryMod    { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperstring) NEQ(x string) qm.QueryMod   { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperstring) LT(x string) qm.QueryMod    { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperstring) LTE(x string) qm.QueryMod   { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperstring) GT(x string) qm.QueryMod    { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperstring) GTE(x string) qm.QueryMod   { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperstring) LIKE(x string) qm.QueryMod  { return qm.Where(w.field+" LIKE ?", x) }
-func (w whereHelperstring) NLIKE(x string) qm.QueryMod { return qm.Where(w.field+" NOT LIKE ?", x) }
-func (w whereHelperstring) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperstring) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-type whereHelpertime_Time struct{ field string }
-
-func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
-}
-func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
-}
-func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
 
 var PhotosWhere = struct {
 	ID          whereHelperstring
@@ -131,7 +85,7 @@ var PhotosWhere = struct {
 	Title       whereHelperstring
 	Description whereHelperstring
 	ImageUrl    whereHelperstring
-	UserId      whereHelperstring
+	AuthorId    whereHelperstring
 	CategoryId  whereHelperstring
 }{
 	ID:          whereHelperstring{field: "`photos`.`id`"},
@@ -139,7 +93,7 @@ var PhotosWhere = struct {
 	Title:       whereHelperstring{field: "`photos`.`title`"},
 	Description: whereHelperstring{field: "`photos`.`description`"},
 	ImageUrl:    whereHelperstring{field: "`photos`.`imageUrl`"},
-	UserId:      whereHelperstring{field: "`photos`.`userId`"},
+	AuthorId:    whereHelperstring{field: "`photos`.`authorId`"},
 	CategoryId:  whereHelperstring{field: "`photos`.`categoryId`"},
 }
 
@@ -160,8 +114,8 @@ func (*photosR) NewStruct() *photosR {
 type photosL struct{}
 
 var (
-	photosAllColumns            = []string{"id", "created_at", "title", "description", "imageUrl", "userId", "categoryId"}
-	photosColumnsWithoutDefault = []string{"id", "title", "description", "imageUrl", "userId", "categoryId"}
+	photosAllColumns            = []string{"id", "created_at", "title", "description", "imageUrl", "authorId", "categoryId"}
+	photosColumnsWithoutDefault = []string{"id", "title", "description", "imageUrl", "authorId", "categoryId"}
 	photosColumnsWithDefault    = []string{"created_at"}
 	photosPrimaryKeyColumns     = []string{"id"}
 	photosGeneratedColumns      = []string{}
