@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/oapi-codegen/runtime"
 )
 
 // DomainError defines model for DomainError.
@@ -44,8 +46,38 @@ type PostPhotoSuccessResponse struct {
 	Id string `json:"id"`
 }
 
+// PutPhotoRequest defines model for PutPhotoRequest.
+type PutPhotoRequest struct {
+	// AuthorId 投稿者ID
+	AuthorId string `json:"authorId"`
+
+	// CategoryId カテゴリID
+	CategoryId string `json:"categoryId"`
+
+	// Description 写真の説明
+	Description string `json:"description"`
+
+	// Id 投稿写真ID
+	Id string `json:"id"`
+
+	// ImageUrl 写真URL
+	ImageUrl string `json:"imageUrl"`
+
+	// Title 写真タイトル
+	Title string `json:"title"`
+}
+
+// PutPhotoSuccessResponse defines model for PutPhotoSuccessResponse.
+type PutPhotoSuccessResponse struct {
+	// Id 編集した写真ID
+	Id string `json:"id"`
+}
+
 // PostPhotoJSONRequestBody defines body for PostPhoto for application/json ContentType.
 type PostPhotoJSONRequestBody = PostPhotoRequest
+
+// PutPhotoJSONRequestBody defines body for PutPhoto for application/json ContentType.
+type PutPhotoJSONRequestBody = PutPhotoRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -124,6 +156,11 @@ type ClientInterface interface {
 	PostPhotoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	PostPhoto(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutPhotoWithBody request with any body
+	PutPhotoWithBody(ctx context.Context, photoId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutPhoto(ctx context.Context, photoId string, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) PostPhotoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -140,6 +177,30 @@ func (c *Client) PostPhotoWithBody(ctx context.Context, contentType string, body
 
 func (c *Client) PostPhoto(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostPhotoRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutPhotoWithBody(ctx context.Context, photoId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutPhotoRequestWithBody(c.Server, photoId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutPhoto(ctx context.Context, photoId string, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutPhotoRequest(c.Server, photoId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -181,6 +242,53 @@ func NewPostPhotoRequestWithBody(server string, contentType string, body io.Read
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPutPhotoRequest calls the generic PutPhoto builder with application/json body
+func NewPutPhotoRequest(server string, photoId string, body PutPhotoJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutPhotoRequestWithBody(server, photoId, "application/json", bodyReader)
+}
+
+// NewPutPhotoRequestWithBody generates requests for PutPhoto with any type of body
+func NewPutPhotoRequestWithBody(server string, photoId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "photoId", runtime.ParamLocationPath, photoId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/photos/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -237,6 +345,11 @@ type ClientWithResponsesInterface interface {
 	PostPhotoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
 
 	PostPhotoWithResponse(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
+
+	// PutPhotoWithBodyWithResponse request with any body
+	PutPhotoWithBodyWithResponse(ctx context.Context, photoId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error)
+
+	PutPhotoWithResponse(ctx context.Context, photoId string, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error)
 }
 
 type PostPhotoResponse struct {
@@ -262,6 +375,29 @@ func (r PostPhotoResponse) StatusCode() int {
 	return 0
 }
 
+type PutPhotoResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PutPhotoSuccessResponse
+	JSON500      *DomainError
+}
+
+// Status returns HTTPResponse.Status
+func (r PutPhotoResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutPhotoResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // PostPhotoWithBodyWithResponse request with arbitrary body returning *PostPhotoResponse
 func (c *ClientWithResponses) PostPhotoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error) {
 	rsp, err := c.PostPhotoWithBody(ctx, contentType, body, reqEditors...)
@@ -277,6 +413,23 @@ func (c *ClientWithResponses) PostPhotoWithResponse(ctx context.Context, body Po
 		return nil, err
 	}
 	return ParsePostPhotoResponse(rsp)
+}
+
+// PutPhotoWithBodyWithResponse request with arbitrary body returning *PutPhotoResponse
+func (c *ClientWithResponses) PutPhotoWithBodyWithResponse(ctx context.Context, photoId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error) {
+	rsp, err := c.PutPhotoWithBody(ctx, photoId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutPhotoResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutPhotoWithResponse(ctx context.Context, photoId string, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error) {
+	rsp, err := c.PutPhoto(ctx, photoId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutPhotoResponse(rsp)
 }
 
 // ParsePostPhotoResponse parses an HTTP response from a PostPhotoWithResponse call
@@ -295,6 +448,39 @@ func ParsePostPhotoResponse(rsp *http.Response) (*PostPhotoResponse, error) {
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest PostPhotoSuccessResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DomainError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutPhotoResponse parses an HTTP response from a PutPhotoWithResponse call
+func ParsePutPhotoResponse(rsp *http.Response) (*PutPhotoResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutPhotoResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PutPhotoSuccessResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
