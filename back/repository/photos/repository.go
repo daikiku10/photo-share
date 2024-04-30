@@ -57,3 +57,25 @@ func (pr *PhotosRepository) Save(photo *photo.Photo, user *user.User) error {
 	}
 	return nil
 }
+
+// FindById 指定したIDの投稿写真データを取得する
+func (pr *PhotosRepository) FindById(id photo.Id, lock bool) (*photo.Photo, error) {
+	mods := []qm.QueryMod{
+		internal.PhotosWhere.ID.EQ(string(id)),
+	}
+
+	if lock {
+		mods = append(mods, qm.For("update"))
+	}
+
+	query := internal.PluralPhotos(mods...)
+	items, queryErr := query.All(pr.trns.Context(), pr.trns.Get())
+	if queryErr != nil {
+		return nil, DomainError.NewErrorWithInner(errorcode.SearchDBinFindById, queryErr)
+	}
+
+	if len(items) == 0 {
+		return nil, nil
+	}
+	return ToDomain(items[0])
+}
