@@ -19,4 +19,6 @@ const (
 	Validation                                        // バリデーションエラー
 	RecordInsertFailed                                // Saveメソッド内で、データの作成に失敗した時のエラー
 	RecordUpdateFailed                                // Saveメソッド内で、データの更新に失敗した時のエラー
+	SearchDBinFindById                                // FindByIDメソッド内で、DB検索に失敗した時のエラー
+	NotFound                                          // データが見つからないエラー
 )

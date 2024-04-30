@@ -56,13 +56,16 @@ func NewForRepository(
 	categoryId string,
 ) (*Photo, error) {
 	photo := &Photo{
-		id:         id,
-		imageUrl:   imageUrl,
-		authorId:   authorId,
-		categoryId: categoryId,
+		id: id,
 	}
 
-	err := photo.Edit(title, description)
+	err := photo.Edit(
+		title,
+		description,
+		imageUrl,
+		authorId,
+		categoryId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +77,9 @@ func NewForRepository(
 func (photo *Photo) Edit(
 	title string,
 	description string,
+	imageUrl string,
+	authorId string,
+	categoryId string,
 ) error {
 	// バリデーションを行う
 	if title == "" || utf8.RuneCountInString(title) > maxTitleLength {
@@ -86,5 +92,8 @@ func (photo *Photo) Edit(
 	}
 	photo.title = title
 	photo.description = description
+	photo.imageUrl = imageUrl
+	photo.authorId = authorId
+	photo.categoryId = categoryId
 	return nil
 }
