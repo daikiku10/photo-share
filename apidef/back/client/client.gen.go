@@ -73,6 +73,21 @@ type PutPhotoSuccessResponse struct {
 	Id string `json:"id"`
 }
 
+// UserInformationHeader defines model for UserInformationHeader.
+type UserInformationHeader = string
+
+// PostPhotoParams defines parameters for PostPhoto.
+type PostPhotoParams struct {
+	// UserInformation ユーザー情報
+	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
+}
+
+// PutPhotoParams defines parameters for PutPhoto.
+type PutPhotoParams struct {
+	// UserInformation ユーザー情報
+	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
+}
+
 // PostPhotoJSONRequestBody defines body for PostPhoto for application/json ContentType.
 type PostPhotoJSONRequestBody = PostPhotoRequest
 
@@ -153,18 +168,18 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 	// PostPhotoWithBody request with any body
-	PostPhotoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostPhotoWithBody(ctx context.Context, params *PostPhotoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PostPhoto(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostPhoto(ctx context.Context, params *PostPhotoParams, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PutPhotoWithBody request with any body
-	PutPhotoWithBody(ctx context.Context, photoId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PutPhotoWithBody(ctx context.Context, photoId string, params *PutPhotoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PutPhoto(ctx context.Context, photoId string, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PutPhoto(ctx context.Context, photoId string, params *PutPhotoParams, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) PostPhotoWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostPhotoRequestWithBody(c.Server, contentType, body)
+func (c *Client) PostPhotoWithBody(ctx context.Context, params *PostPhotoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostPhotoRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +190,8 @@ func (c *Client) PostPhotoWithBody(ctx context.Context, contentType string, body
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostPhoto(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostPhotoRequest(c.Server, body)
+func (c *Client) PostPhoto(ctx context.Context, params *PostPhotoParams, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostPhotoRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -187,8 +202,8 @@ func (c *Client) PostPhoto(ctx context.Context, body PostPhotoJSONRequestBody, r
 	return c.Client.Do(req)
 }
 
-func (c *Client) PutPhotoWithBody(ctx context.Context, photoId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutPhotoRequestWithBody(c.Server, photoId, contentType, body)
+func (c *Client) PutPhotoWithBody(ctx context.Context, photoId string, params *PutPhotoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutPhotoRequestWithBody(c.Server, photoId, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +214,8 @@ func (c *Client) PutPhotoWithBody(ctx context.Context, photoId string, contentTy
 	return c.Client.Do(req)
 }
 
-func (c *Client) PutPhoto(ctx context.Context, photoId string, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutPhotoRequest(c.Server, photoId, body)
+func (c *Client) PutPhoto(ctx context.Context, photoId string, params *PutPhotoParams, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutPhotoRequest(c.Server, photoId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -212,18 +227,18 @@ func (c *Client) PutPhoto(ctx context.Context, photoId string, body PutPhotoJSON
 }
 
 // NewPostPhotoRequest calls the generic PostPhoto builder with application/json body
-func NewPostPhotoRequest(server string, body PostPhotoJSONRequestBody) (*http.Request, error) {
+func NewPostPhotoRequest(server string, params *PostPhotoParams, body PostPhotoJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPostPhotoRequestWithBody(server, "application/json", bodyReader)
+	return NewPostPhotoRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewPostPhotoRequestWithBody generates requests for PostPhoto with any type of body
-func NewPostPhotoRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPostPhotoRequestWithBody(server string, params *PostPhotoParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -248,22 +263,37 @@ func NewPostPhotoRequestWithBody(server string, contentType string, body io.Read
 
 	req.Header.Add("Content-Type", contentType)
 
+	if params != nil {
+
+		if params.UserInformation != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "userInformation", runtime.ParamLocationHeader, *params.UserInformation)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("userInformation", headerParam0)
+		}
+
+	}
+
 	return req, nil
 }
 
 // NewPutPhotoRequest calls the generic PutPhoto builder with application/json body
-func NewPutPhotoRequest(server string, photoId string, body PutPhotoJSONRequestBody) (*http.Request, error) {
+func NewPutPhotoRequest(server string, photoId string, params *PutPhotoParams, body PutPhotoJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPutPhotoRequestWithBody(server, photoId, "application/json", bodyReader)
+	return NewPutPhotoRequestWithBody(server, photoId, params, "application/json", bodyReader)
 }
 
 // NewPutPhotoRequestWithBody generates requests for PutPhoto with any type of body
-func NewPutPhotoRequestWithBody(server string, photoId string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPutPhotoRequestWithBody(server string, photoId string, params *PutPhotoParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -294,6 +324,21 @@ func NewPutPhotoRequestWithBody(server string, photoId string, contentType strin
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.UserInformation != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "userInformation", runtime.ParamLocationHeader, *params.UserInformation)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("userInformation", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -342,14 +387,14 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 	// PostPhotoWithBodyWithResponse request with any body
-	PostPhotoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
+	PostPhotoWithBodyWithResponse(ctx context.Context, params *PostPhotoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
 
-	PostPhotoWithResponse(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
+	PostPhotoWithResponse(ctx context.Context, params *PostPhotoParams, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
 
 	// PutPhotoWithBodyWithResponse request with any body
-	PutPhotoWithBodyWithResponse(ctx context.Context, photoId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error)
+	PutPhotoWithBodyWithResponse(ctx context.Context, photoId string, params *PutPhotoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error)
 
-	PutPhotoWithResponse(ctx context.Context, photoId string, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error)
+	PutPhotoWithResponse(ctx context.Context, photoId string, params *PutPhotoParams, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error)
 }
 
 type PostPhotoResponse struct {
@@ -399,16 +444,16 @@ func (r PutPhotoResponse) StatusCode() int {
 }
 
 // PostPhotoWithBodyWithResponse request with arbitrary body returning *PostPhotoResponse
-func (c *ClientWithResponses) PostPhotoWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error) {
-	rsp, err := c.PostPhotoWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) PostPhotoWithBodyWithResponse(ctx context.Context, params *PostPhotoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error) {
+	rsp, err := c.PostPhotoWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParsePostPhotoResponse(rsp)
 }
 
-func (c *ClientWithResponses) PostPhotoWithResponse(ctx context.Context, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error) {
-	rsp, err := c.PostPhoto(ctx, body, reqEditors...)
+func (c *ClientWithResponses) PostPhotoWithResponse(ctx context.Context, params *PostPhotoParams, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error) {
+	rsp, err := c.PostPhoto(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -416,16 +461,16 @@ func (c *ClientWithResponses) PostPhotoWithResponse(ctx context.Context, body Po
 }
 
 // PutPhotoWithBodyWithResponse request with arbitrary body returning *PutPhotoResponse
-func (c *ClientWithResponses) PutPhotoWithBodyWithResponse(ctx context.Context, photoId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error) {
-	rsp, err := c.PutPhotoWithBody(ctx, photoId, contentType, body, reqEditors...)
+func (c *ClientWithResponses) PutPhotoWithBodyWithResponse(ctx context.Context, photoId string, params *PutPhotoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error) {
+	rsp, err := c.PutPhotoWithBody(ctx, photoId, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParsePutPhotoResponse(rsp)
 }
 
-func (c *ClientWithResponses) PutPhotoWithResponse(ctx context.Context, photoId string, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error) {
-	rsp, err := c.PutPhoto(ctx, photoId, body, reqEditors...)
+func (c *ClientWithResponses) PutPhotoWithResponse(ctx context.Context, photoId string, params *PutPhotoParams, body PutPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PutPhotoResponse, error) {
+	rsp, err := c.PutPhoto(ctx, photoId, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}

@@ -19,6 +19,8 @@ paths:
       summary: 投稿写真登録API
       description: 投稿写真を登録するAPIです。
       operationId: postPhoto
+      parameters:
+        - $ref: "#/components/parameters/UserInformationHeader"
       requestBody:
         required: true
         content:
@@ -54,6 +56,7 @@ paths:
           schema:
             type: string
           example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+        - $ref: "#/components/parameters/UserInformationHeader"
       requestBody:
         required: true
         content:
@@ -170,3 +173,12 @@ components:
           type: string
           description: 編集した写真ID
           example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+
+  parameters:
+    UserInformationHeader:
+      in: header
+      name: userInformation
+      schema:
+        type: string
+      required: false
+      description: ユーザー情報

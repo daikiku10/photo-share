@@ -68,6 +68,21 @@ type PutPhotoSuccessResponse struct {
 	Id string `json:"id"`
 }
 
+// UserInformationHeader defines model for UserInformationHeader.
+type UserInformationHeader = string
+
+// PostPhotoParams defines parameters for PostPhoto.
+type PostPhotoParams struct {
+	// UserInformation ユーザー情報
+	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
+}
+
+// PutPhotoParams defines parameters for PutPhoto.
+type PutPhotoParams struct {
+	// UserInformation ユーザー情報
+	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
+}
+
 // PostPhotoJSONRequestBody defines body for PostPhoto for application/json ContentType.
 type PostPhotoJSONRequestBody = PostPhotoRequest
 
@@ -78,10 +93,10 @@ type PutPhotoJSONRequestBody = PutPhotoRequest
 type ServerInterface interface {
 	// 投稿写真登録API
 	// (POST /photos)
-	PostPhoto(c *gin.Context)
+	PostPhoto(c *gin.Context, params PostPhotoParams)
 	// 投稿写真編集API
 	// (PUT /photos/{photoId})
-	PutPhoto(c *gin.Context, photoId string)
+	PutPhoto(c *gin.Context, photoId string, params PutPhotoParams)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -96,6 +111,32 @@ type MiddlewareFunc func(c *gin.Context)
 // PostPhoto operation middleware
 func (siw *ServerInterfaceWrapper) PostPhoto(c *gin.Context) {
 
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PostPhotoParams
+
+	headers := c.Request.Header
+
+	// ------------- Optional header parameter "userInformation" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("userInformation")]; found {
+		var UserInformation UserInformationHeader
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandler(c, fmt.Errorf("Expected one value for userInformation, got %d", n), http.StatusBadRequest)
+			return
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "userInformation", runtime.ParamLocationHeader, valueList[0], &UserInformation)
+		if err != nil {
+			siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userInformation: %w", err), http.StatusBadRequest)
+			return
+		}
+
+		params.UserInformation = &UserInformation
+
+	}
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -103,7 +144,7 @@ func (siw *ServerInterfaceWrapper) PostPhoto(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PostPhoto(c)
+	siw.Handler.PostPhoto(c, params)
 }
 
 // PutPhoto operation middleware
@@ -120,6 +161,30 @@ func (siw *ServerInterfaceWrapper) PutPhoto(c *gin.Context) {
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params PutPhotoParams
+
+	headers := c.Request.Header
+
+	// ------------- Optional header parameter "userInformation" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("userInformation")]; found {
+		var UserInformation UserInformationHeader
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandler(c, fmt.Errorf("Expected one value for userInformation, got %d", n), http.StatusBadRequest)
+			return
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "userInformation", runtime.ParamLocationHeader, valueList[0], &UserInformation)
+		if err != nil {
+			siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userInformation: %w", err), http.StatusBadRequest)
+			return
+		}
+
+		params.UserInformation = &UserInformation
+
+	}
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -127,7 +192,7 @@ func (siw *ServerInterfaceWrapper) PutPhoto(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.PutPhoto(c, photoId)
+	siw.Handler.PutPhoto(c, photoId, params)
 }
 
 // GinServerOptions provides options for the Gin server.
