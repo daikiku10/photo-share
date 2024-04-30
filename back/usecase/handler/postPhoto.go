@@ -11,12 +11,11 @@ import (
 
 // PostPhoto 投稿写真登録API
 // (POST /photos)
-func (s *Server) PostPhoto(ctx *gin.Context) {
-	// TODO: ヘッダーにユーザー情報を受け取れるようにする
+func (s *Server) PostPhoto(ctx *gin.Context, params server.PostPhotoParams) {
 	user := user.New("user1")
-	// user, errHeader := user.NewWithBase64Json("")
+	// user, errHeader := user.NewWithBase64Json(params.UserInformation)
 	// if errHeader != nil {
-	// 	ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(DomainError.NewErrorWithInner(ErrorCode.NotAuthorized, errHeader)))
+	// 	ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(DomainError.NewErrorWithInner(errorcode.NotAuthorized, errHeader)))
 	// 	return
 	// }
 

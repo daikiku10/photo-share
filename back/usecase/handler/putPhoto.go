@@ -14,12 +14,11 @@ import (
 
 // PutPhoto 投稿写真編集API
 // (PUT /photos/{photoId})
-func (s *Server) PutPhoto(ctx *gin.Context, photoId string) {
-	// TODO: ヘッダーにユーザー情報を受け取れるようにする
+func (s *Server) PutPhoto(ctx *gin.Context, photoId string, params server.PutPhotoParams) {
 	user := user.New("user1")
-	// user, errHeader := user.NewWithBase64Json("")
+	// user, errHeader := user.NewWithBase64Json(params.UserInformation)
 	// if errHeader != nil {
-	// 	ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(DomainError.NewErrorWithInner(ErrorCode.NotAuthorized, errHeader)))
+	// 	ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(DomainError.NewErrorWithInner(errorcode.NotAuthorized, errHeader)))
 	// 	return
 	// }
 
