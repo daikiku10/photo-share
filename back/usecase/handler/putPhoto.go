@@ -58,6 +58,7 @@ func (s *Server) PutPhoto(ctx *gin.Context, photoId string, params server.PutPho
 		requestBody.ImageUrl,
 		requestBody.AuthorId,
 		requestBody.CategoryId,
+		photoObject.CreatedAt(),
 	)
 	if errUpdate != nil {
 		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(errUpdate))
