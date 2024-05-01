@@ -6,6 +6,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oapi-codegen/runtime"
@@ -15,6 +16,33 @@ import (
 type DomainError struct {
 	Code    *string `json:"code,omitempty"`
 	Message *string `json:"message,omitempty"`
+}
+
+// GetPhotoSuccessResponse defines model for GetPhotoSuccessResponse.
+type GetPhotoSuccessResponse struct {
+	// AuthorId 投稿者ID
+	AuthorId string `json:"authorId"`
+
+	// CategoryId カテゴリID
+	CategoryId string `json:"categoryId"`
+
+	// CreatedAt 作成日時
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Description 写真の説明
+	Description string `json:"description"`
+
+	// Id 投稿写真ID
+	Id string `json:"id"`
+
+	// ImageUrl 写真URL
+	ImageUrl string `json:"imageUrl"`
+
+	// LikedCount いいね数
+	LikedCount int `json:"likedCount"`
+
+	// Title 写真タイトル
+	Title string `json:"title"`
 }
 
 // PostPhotoRequest defines model for PostPhotoRequest.
@@ -77,6 +105,12 @@ type PostPhotoParams struct {
 	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
 }
 
+// GetPhotoParams defines parameters for GetPhoto.
+type GetPhotoParams struct {
+	// UserInformation ユーザー情報
+	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
+}
+
 // PutPhotoParams defines parameters for PutPhoto.
 type PutPhotoParams struct {
 	// UserInformation ユーザー情報
@@ -94,6 +128,9 @@ type ServerInterface interface {
 	// 投稿写真登録API
 	// (POST /photos)
 	PostPhoto(c *gin.Context, params PostPhotoParams)
+	// 投稿写真情報の1件取得API
+	// (GET /photos/{photoId})
+	GetPhoto(c *gin.Context, photoId string, params GetPhotoParams)
 	// 投稿写真編集API
 	// (PUT /photos/{photoId})
 	PutPhoto(c *gin.Context, photoId string, params PutPhotoParams)
@@ -145,6 +182,54 @@ func (siw *ServerInterfaceWrapper) PostPhoto(c *gin.Context) {
 	}
 
 	siw.Handler.PostPhoto(c, params)
+}
+
+// GetPhoto operation middleware
+func (siw *ServerInterfaceWrapper) GetPhoto(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "photoId" -------------
+	var photoId string
+
+	err = runtime.BindStyledParameter("simple", false, "photoId", c.Param("photoId"), &photoId)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter photoId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetPhotoParams
+
+	headers := c.Request.Header
+
+	// ------------- Optional header parameter "userInformation" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("userInformation")]; found {
+		var UserInformation UserInformationHeader
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandler(c, fmt.Errorf("Expected one value for userInformation, got %d", n), http.StatusBadRequest)
+			return
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "userInformation", runtime.ParamLocationHeader, valueList[0], &UserInformation)
+		if err != nil {
+			siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userInformation: %w", err), http.StatusBadRequest)
+			return
+		}
+
+		params.UserInformation = &UserInformation
+
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetPhoto(c, photoId, params)
 }
 
 // PutPhoto operation middleware
@@ -223,5 +308,6 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.POST(options.BaseURL+"/photos", wrapper.PostPhoto)
+	router.GET(options.BaseURL+"/photos/:photoId", wrapper.GetPhoto)
 	router.PUT(options.BaseURL+"/photos/:photoId", wrapper.PutPhoto)
 }
