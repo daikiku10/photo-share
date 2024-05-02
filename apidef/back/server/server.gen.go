@@ -105,6 +105,12 @@ type PostPhotoParams struct {
 	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
 }
 
+// DeletePhotoParams defines parameters for DeletePhoto.
+type DeletePhotoParams struct {
+	// UserInformation ユーザー情報
+	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
+}
+
 // GetPhotoParams defines parameters for GetPhoto.
 type GetPhotoParams struct {
 	// UserInformation ユーザー情報
@@ -128,6 +134,9 @@ type ServerInterface interface {
 	// 投稿写真登録API
 	// (POST /photos)
 	PostPhoto(c *gin.Context, params PostPhotoParams)
+	// 投稿写真の1件削除API
+	// (DELETE /photos/{photoId})
+	DeletePhoto(c *gin.Context, photoId string, params DeletePhotoParams)
 	// 投稿写真情報の1件取得API
 	// (GET /photos/{photoId})
 	GetPhoto(c *gin.Context, photoId string, params GetPhotoParams)
@@ -182,6 +191,54 @@ func (siw *ServerInterfaceWrapper) PostPhoto(c *gin.Context) {
 	}
 
 	siw.Handler.PostPhoto(c, params)
+}
+
+// DeletePhoto operation middleware
+func (siw *ServerInterfaceWrapper) DeletePhoto(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "photoId" -------------
+	var photoId string
+
+	err = runtime.BindStyledParameter("simple", false, "photoId", c.Param("photoId"), &photoId)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter photoId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeletePhotoParams
+
+	headers := c.Request.Header
+
+	// ------------- Optional header parameter "userInformation" -------------
+	if valueList, found := headers[http.CanonicalHeaderKey("userInformation")]; found {
+		var UserInformation UserInformationHeader
+		n := len(valueList)
+		if n != 1 {
+			siw.ErrorHandler(c, fmt.Errorf("Expected one value for userInformation, got %d", n), http.StatusBadRequest)
+			return
+		}
+
+		err = runtime.BindStyledParameterWithLocation("simple", false, "userInformation", runtime.ParamLocationHeader, valueList[0], &UserInformation)
+		if err != nil {
+			siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter userInformation: %w", err), http.StatusBadRequest)
+			return
+		}
+
+		params.UserInformation = &UserInformation
+
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeletePhoto(c, photoId, params)
 }
 
 // GetPhoto operation middleware
@@ -308,6 +365,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.POST(options.BaseURL+"/photos", wrapper.PostPhoto)
+	router.DELETE(options.BaseURL+"/photos/:photoId", wrapper.DeletePhoto)
 	router.GET(options.BaseURL+"/photos/:photoId", wrapper.GetPhoto)
 	router.PUT(options.BaseURL+"/photos/:photoId", wrapper.PutPhoto)
 }

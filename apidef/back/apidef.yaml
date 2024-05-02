@@ -106,6 +106,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/DomainError"
 
+    delete:
+      tags:
+        - photo
+      summary: 投稿写真の1件削除API
+      description: 投稿写真の1件削除をするAPIです。
+      operationId: deletePhoto
+      parameters:
+        - name: photoId
+          in: path
+          description: 投稿写真ID
+          required: true
+          schema:
+            type: string
+          example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+        - $ref: "#/components/parameters/UserInformationHeader"
+      responses:
+        "200":
+          description: 成功
+        "500":
+          description: 失敗(Internal server error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainError"
+
 components:
   schemas:
     DomainError: # エラーレスポンス
