@@ -2,6 +2,8 @@
 
 package photo
 
+import "time"
+
 // Id return id value
 func (t Photo) Id() Id {
 	return t.id
@@ -30,4 +32,14 @@ func (t Photo) AuthorId() string {
 // CategoryId return categoryId value
 func (t Photo) CategoryId() string {
 	return t.categoryId
+}
+
+// CreatedAt return createdAt value
+func (t Photo) CreatedAt() time.Time {
+	return t.createdAt
+}
+
+// LikedCount return likedCount value
+func (t Photo) LikedCount() int {
+	return t.likedCount
 }

@@ -40,7 +40,7 @@ func (s *Server) PutPhoto(ctx *gin.Context, photoId string, params server.PutPho
 	}
 
 	// 現在の投稿写真データの取得
-	photoObject, queryErr := repo.FindById(photo.Id(photoId), false)
+	photoObject, queryErr := repo.FindById(photo.Id(photoId), true)
 	if queryErr != nil {
 		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(queryErr))
 		return
@@ -58,6 +58,7 @@ func (s *Server) PutPhoto(ctx *gin.Context, photoId string, params server.PutPho
 		requestBody.ImageUrl,
 		requestBody.AuthorId,
 		requestBody.CategoryId,
+		photoObject.CreatedAt(),
 	)
 	if errUpdate != nil {
 		ctx.JSON(http.StatusInternalServerError, converter.ToErrorItem(errUpdate))

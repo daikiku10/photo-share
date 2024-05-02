@@ -4,6 +4,7 @@ import (
 	"photo-share/back/errorcode"
 	DomainError "photo-share/back/sharelib/domain/error"
 	"photo-share/back/sharelib/domain/logging"
+	"time"
 	"unicode/utf8"
 
 	"github.com/oklog/ulid/v2"
@@ -26,6 +27,8 @@ type Photo struct {
 	imageUrl    string
 	authorId    string
 	categoryId  string
+	createdAt   time.Time
+	likedCount  int
 }
 
 // New IDを新規採番してオブジェクトを生成する
@@ -56,7 +59,8 @@ func NewForRepository(
 	categoryId string,
 ) (*Photo, error) {
 	photo := &Photo{
-		id: id,
+		id:         id,
+		likedCount: 0, // TODO: 固定値ではない
 	}
 
 	err := photo.Edit(
@@ -65,6 +69,7 @@ func NewForRepository(
 		imageUrl,
 		authorId,
 		categoryId,
+		photo.createdAt,
 	)
 	if err != nil {
 		return nil, err
@@ -80,6 +85,7 @@ func (photo *Photo) Edit(
 	imageUrl string,
 	authorId string,
 	categoryId string,
+	createdAt time.Time,
 ) error {
 	// バリデーションを行う
 	if title == "" || utf8.RuneCountInString(title) > maxTitleLength {
@@ -95,5 +101,6 @@ func (photo *Photo) Edit(
 	photo.imageUrl = imageUrl
 	photo.authorId = authorId
 	photo.categoryId = categoryId
+	photo.createdAt = createdAt
 	return nil
 }
