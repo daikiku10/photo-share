@@ -110,6 +110,12 @@ type PostPhotoParams struct {
 	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
 }
 
+// DeletePhotoParams defines parameters for DeletePhoto.
+type DeletePhotoParams struct {
+	// UserInformation ユーザー情報
+	UserInformation *UserInformationHeader `json:"userInformation,omitempty"`
+}
+
 // GetPhotoParams defines parameters for GetPhoto.
 type GetPhotoParams struct {
 	// UserInformation ユーザー情報
@@ -206,6 +212,9 @@ type ClientInterface interface {
 
 	PostPhoto(ctx context.Context, params *PostPhotoParams, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DeletePhoto request
+	DeletePhoto(ctx context.Context, photoId string, params *DeletePhotoParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetPhoto request
 	GetPhoto(ctx context.Context, photoId string, params *GetPhotoParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -229,6 +238,18 @@ func (c *Client) PostPhotoWithBody(ctx context.Context, params *PostPhotoParams,
 
 func (c *Client) PostPhoto(ctx context.Context, params *PostPhotoParams, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostPhotoRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeletePhoto(ctx context.Context, photoId string, params *DeletePhotoParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeletePhotoRequest(c.Server, photoId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -311,6 +332,55 @@ func NewPostPhotoRequestWithBody(server string, params *PostPhotoParams, content
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.UserInformation != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "userInformation", runtime.ParamLocationHeader, *params.UserInformation)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("userInformation", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewDeletePhotoRequest generates requests for DeletePhoto
+func NewDeletePhotoRequest(server string, photoId string, params *DeletePhotoParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "photoId", runtime.ParamLocationPath, photoId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/photos/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	if params != nil {
 
@@ -489,6 +559,9 @@ type ClientWithResponsesInterface interface {
 
 	PostPhotoWithResponse(ctx context.Context, params *PostPhotoParams, body PostPhotoJSONRequestBody, reqEditors ...RequestEditorFn) (*PostPhotoResponse, error)
 
+	// DeletePhotoWithResponse request
+	DeletePhotoWithResponse(ctx context.Context, photoId string, params *DeletePhotoParams, reqEditors ...RequestEditorFn) (*DeletePhotoResponse, error)
+
 	// GetPhotoWithResponse request
 	GetPhotoWithResponse(ctx context.Context, photoId string, params *GetPhotoParams, reqEditors ...RequestEditorFn) (*GetPhotoResponse, error)
 
@@ -515,6 +588,28 @@ func (r PostPhotoResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PostPhotoResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeletePhotoResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON500      *DomainError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeletePhotoResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeletePhotoResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -584,6 +679,15 @@ func (c *ClientWithResponses) PostPhotoWithResponse(ctx context.Context, params 
 	return ParsePostPhotoResponse(rsp)
 }
 
+// DeletePhotoWithResponse request returning *DeletePhotoResponse
+func (c *ClientWithResponses) DeletePhotoWithResponse(ctx context.Context, photoId string, params *DeletePhotoParams, reqEditors ...RequestEditorFn) (*DeletePhotoResponse, error) {
+	rsp, err := c.DeletePhoto(ctx, photoId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeletePhotoResponse(rsp)
+}
+
 // GetPhotoWithResponse request returning *GetPhotoResponse
 func (c *ClientWithResponses) GetPhotoWithResponse(ctx context.Context, photoId string, params *GetPhotoParams, reqEditors ...RequestEditorFn) (*GetPhotoResponse, error) {
 	rsp, err := c.GetPhoto(ctx, photoId, params, reqEditors...)
@@ -631,6 +735,32 @@ func ParsePostPhotoResponse(rsp *http.Response) (*PostPhotoResponse, error) {
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest DomainError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeletePhotoResponse parses an HTTP response from a DeletePhotoWithResponse call
+func ParseDeletePhotoResponse(rsp *http.Response) (*DeletePhotoResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeletePhotoResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest DomainError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
