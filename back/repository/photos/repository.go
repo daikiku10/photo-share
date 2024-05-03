@@ -69,6 +69,7 @@ func (pr *PhotosRepository) FindById(id photo.Id, lock bool) (*photo.Photo, erro
 	}
 
 	query := internal.PluralPhotos(mods...)
+	// レコード取得
 	items, queryErr := query.All(pr.trns.Context(), pr.trns.Get())
 	if queryErr != nil {
 		return nil, DomainError.NewErrorWithInner(errorcode.SearchDBinFindById, queryErr)
@@ -78,4 +79,34 @@ func (pr *PhotosRepository) FindById(id photo.Id, lock bool) (*photo.Photo, erro
 		return nil, nil
 	}
 	return ToDomain(items[0])
+}
+
+// Delete 引数で渡した投稿写真データを削除する
+func (pr *PhotosRepository) Delete(photo *photo.Photo, user *user.User) error {
+	// 削除対象の存在確認
+	mods := []qm.QueryMod{
+		internal.PhotosWhere.ID.EQ(string(photo.Id())),
+		qm.For("update"),
+	}
+
+	query := internal.PluralPhotos(mods...)
+	// レコード取得
+	items, queryErr := query.All(pr.trns.Context(), pr.trns.Get())
+	if queryErr != nil {
+		return DomainError.NewErrorWithInner(errorcode.RecordDeleteFailed, queryErr)
+	}
+	if len(items) == 0 {
+		logging.Error("削除対象が存在しません。", logging.Var("photoId", photo.Id()))
+		return DomainError.NewErrorWithInner(errorcode.RecordDeleteFailed, queryErr)
+	}
+
+	// 物理削除
+	internalPhoto := ToDTO(photo)
+	_, deleteErr := internalPhoto.Delete(pr.trns.Context(), pr.trns.Get())
+	if deleteErr != nil {
+		logging.Error("削除に失敗しました。", logging.Var("photoId", photo.Id()), logging.Var("error", deleteErr))
+		return DomainError.NewErrorWithInner(errorcode.RecordDeleteFailed, deleteErr)
+	}
+
+	return nil
 }

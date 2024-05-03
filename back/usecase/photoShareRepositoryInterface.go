@@ -10,4 +10,6 @@ type PhotoShareRepositoryInterface interface {
 	Save(photo *photo.Photo, user *user.User) error
 	// FindById 指定したIDの投稿写真データを取得する
 	FindById(id photo.Id, lock bool) (*photo.Photo, error)
+	// Delete 引数で渡した投稿写真データを削除する
+	Delete(photo *photo.Photo, user *user.User) error
 }

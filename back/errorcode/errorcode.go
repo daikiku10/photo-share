@@ -21,4 +21,5 @@ const (
 	RecordUpdateFailed                                // Saveメソッド内で、データの更新に失敗した時のエラー
 	SearchDBinFindById                                // FindByIDメソッド内で、DB検索に失敗した時のエラー
 	NotFound                                          // データが見つからないエラー
+	RecordDeleteFailed                                // Deleteメソッド内で、データの削除に失敗した時のエラー                                    // データが見つからないエラー
 )
