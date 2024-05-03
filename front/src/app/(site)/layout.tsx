@@ -1,3 +1,5 @@
+import { Container } from "@/components/Layout/Container";
+import { Footer } from "@/components/Layout/Footer";
 import { Header } from "@/components/Layout/Header";
 import { Root } from "@/components/Layout/Root";
 
@@ -9,7 +11,8 @@ export default function SiteLayout({ children }: Props) {
   return (
     <Root>
       <Header />
-      {children}
+      <Container>{children}</Container>
+      <Footer />
     </Root>
   );
 }
