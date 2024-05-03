@@ -1,3 +1,3 @@
 export default async function Page() {
-  return <div>test</div>;
+  return <div>メインコンテンツ</div>;
 }
