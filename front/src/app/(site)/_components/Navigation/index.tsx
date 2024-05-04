@@ -5,6 +5,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/Icon";
+import { PhotoCreateModalContainer } from "../PhotoCreateModalContainer";
 import styles from "./style.module.css";
 
 function renderLink(
@@ -37,15 +38,17 @@ export function Navigation() {
           ))}
         </li>
         <li className={styles.listitem}>
-          <span
-            className={clsx(
-              styles.listitemChild,
-              styles.navigationLinkClassName
-            )}
-          >
-            <Icon type="camera" />
-            post
-          </span>
+          <PhotoCreateModalContainer>
+            <span
+              className={clsx(
+                styles.listitemChild,
+                styles.navigationLinkClassName
+              )}
+            >
+              <Icon type="camera" />
+              post
+            </span>
+          </PhotoCreateModalContainer>
         </li>
       </ul>
     </nav>
