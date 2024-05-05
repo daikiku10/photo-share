@@ -1,3 +1,5 @@
+import { MAX_UPLOAD_PHOTO_HEIGHT, MAX_UPLOAD_PHOTO_WIDTH } from "@/constants";
+
 export function getImageElementFromFile(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -16,23 +18,26 @@ export function getImageElementFromFile(file: File): Promise<HTMLImageElement> {
 
 export function resizePhoto({
   image,
-  size,
 }: {
   image: HTMLImageElement;
-  size: number;
 }): Promise<Blob> {
   return new Promise((resolve) => {
-    const [w, h] = [image.width, image.height];
-    const max = Math.max(w, h);
-    const ratio = max === w ? w / h : h / w;
-    const width = max === w ? size : size / ratio;
-    const height = max === h ? size : size / ratio;
     const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = MAX_UPLOAD_PHOTO_WIDTH;
+    canvas.height = MAX_UPLOAD_PHOTO_HEIGHT;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get canvas context");
-    ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, width, height);
+    ctx.drawImage(
+      image,
+      0,
+      0,
+      image.width,
+      image.height,
+      0,
+      0,
+      MAX_UPLOAD_PHOTO_WIDTH,
+      MAX_UPLOAD_PHOTO_HEIGHT
+    );
     ctx.canvas.toBlob(
       (result) => {
         if (!result) throw new Error("Failed to convert canvas to blob");

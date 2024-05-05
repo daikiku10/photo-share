@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Icon } from "@/components/Icon";
+import { PhotoDndUploader } from "@/components/PhotoDndUploader";
+import { Typography } from "@/components/Typography";
 import styles from "./style.module.css";
 
 type State = {
@@ -13,7 +16,25 @@ export function PhotoUploader({
 }: {
   onChange: (file: Blob) => void;
 }) {
-  return <></>;
+  return (
+    <PhotoDndUploader
+      className={styles.photo}
+      areaClassName={styles.area}
+      dragActiveClassName={styles.dragActive}
+      onChange={onChange}
+    >
+      {(isDragActive) => (
+        <>
+          <Icon
+            type="upload"
+            size="large"
+            color={isDragActive ? "orange" : "gray"}
+          />
+          <Typography>ここに写真をドロップしてください</Typography>
+        </>
+      )}
+    </PhotoDndUploader>
+  );
 }
 
 /** 写真投稿フォーム */
