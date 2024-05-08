@@ -62,7 +62,7 @@ export function PhotoCreateForm() {
     <form className={styles.form} onSubmit={handleSubmit}>
       <PhotoUploader onChange={handleChangeFile} />
       {/* タイトル・説明・カテゴリID */}
-      <PhotoMeta />
+      <PhotoMeta onChange={handleChangeMeta} />
     </form>
   );
 }
