@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { PhotoDndUploader } from "@/components/PhotoDndUploader";
 import { Typography } from "@/components/Typography";
+import { PhotoMeta } from "./PhotoMeta";
 import styles from "./style.module.css";
 
 type State = {
@@ -60,7 +61,8 @@ export function PhotoCreateForm() {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <PhotoUploader onChange={handleChangeFile} />
-      {/* TODO: PhotoMeta */}
+      {/* タイトル・説明・カテゴリID */}
+      <PhotoMeta onChange={handleChangeMeta} />
     </form>
   );
 }
