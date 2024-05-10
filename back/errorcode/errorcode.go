@@ -4,7 +4,7 @@ type PhotoShareErrorCode int
 
 // AppCode アプリケーションのエラーコードを返す
 func (phe PhotoShareErrorCode) AppCode() int {
-	return 100
+	return 101
 }
 
 // Code エラーコードを数値変換して返す
