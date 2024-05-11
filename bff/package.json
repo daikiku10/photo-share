@@ -6,19 +6,21 @@
     "dev": "next dev -p 9992",
     "build": "next build",
     "start": "next start -p 9992",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate": "openapi-generator generate -g typescript-fetch -i ../apidef/back/apidef.yaml -o ./src/generate/back & openapi-generator generate -g typescript-fetch -i ../apidef/bff/apidef.yaml -o ./src/generate/bff"
   },
   "dependencies": {
+    "next": "14.2.3",
     "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.3"
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@openapitools/openapi-generator-cli": "^2.13.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.2.3"
+    "eslint-config-next": "14.2.3",
+    "typescript": "^5"
   }
 }
