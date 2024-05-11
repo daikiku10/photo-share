@@ -13,5 +13,9 @@ go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 export PATH=$PATH:`npm prefix --location=global`/bin
 export PATH=$PATH:~/go/bin
 
+# back
 oapi-codegen -package client -generate "client,types" back/apidef.yaml > back/client/client.gen.go
 oapi-codegen -package server -generate "gin,types" back/apidef.yaml > back/server/server.gen.go
+# bff
+# oapi-codegen -package client -generate "client,types" bff/apidef.yaml > bff/client/client.gen.go
+# oapi-codegen -package server -generate "gin,types" bff/apidef.yaml > bff/server/server.gen.go

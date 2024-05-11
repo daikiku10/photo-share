@@ -1,0 +1,270 @@
+openapi: 3.0.3
+
+info:
+  description: photo-share bff
+  version: 1.0.0
+  title: BFF
+  contact:
+    name: photo-share
+
+tags:
+  - name: photo
+    description: 投稿写真関連
+
+paths:
+  /photos:
+    post:
+      tags:
+        - photo
+      summary: 投稿写真登録API
+      description: 投稿写真を登録するAPIです。
+      operationId: postPhoto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostPhotoRequest"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostPhotoSuccessResponse"
+        "500":
+          description: 失敗(Internal server error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainError"
+
+  /photos/{photoId}:
+    get:
+      tags:
+        - photo
+      summary: 投稿写真情報の1件取得API
+      description: 投稿写真情報の1件取得するAPIです。
+      operationId: getPhoto
+      parameters:
+        - name: photoId
+          in: path
+          description: 投稿写真ID
+          required: true
+          schema:
+            type: string
+          example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetPhotoSuccessResponse"
+        "500":
+          description: 失敗(Internal server error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainError"
+
+    put:
+      tags:
+        - photo
+      summary: 投稿写真編集API
+      description: 投稿写真を編集するAPIです。
+      operationId: putPhoto
+      parameters:
+        - name: photoId
+          in: path
+          description: 投稿写真ID
+          required: true
+          schema:
+            type: string
+          example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutPhotoRequest"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PutPhotoSuccessResponse"
+        "500":
+          description: 失敗(Internal server error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainError"
+
+    delete:
+      tags:
+        - photo
+      summary: 投稿写真の1件削除API
+      description: 投稿写真の1件削除をするAPIです。
+      operationId: deletePhoto
+      parameters:
+        - name: photoId
+          in: path
+          description: 投稿写真ID
+          required: true
+          schema:
+            type: string
+          example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+      responses:
+        "200":
+          description: 成功
+        "500":
+          description: 失敗(Internal server error)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DomainError"
+
+components:
+  schemas:
+    DomainError: # エラーレスポンス
+      type: object
+      properties:
+        code:
+          type: string
+          example: 001-000001
+        message:
+          type: string
+          example: エラーメッセージ
+
+    PostPhotoRequest: # 投稿写真登録のリクエスト
+      type: object
+      required:
+        - title
+        - description
+        - imageUrl
+        - authorId
+        - categoryId
+      properties:
+        title:
+          type: string
+          description: 写真タイトル
+          example: テスト写真タイトル
+        description:
+          type: string
+          description: 写真の説明
+          example: この写真は...
+        imageUrl:
+          type: string
+          description: 写真URL
+          example: testUrl
+        authorId:
+          type: string
+          description: 投稿者ID
+          example: testUserId
+        categoryId:
+          type: string
+          description: カテゴリID
+          example: testCategoryId
+
+    PostPhotoSuccessResponse: # 投稿写真登録の成功レスポンス
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: 登録した写真ID
+          example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+
+    GetPhotoSuccessResponse: # 投稿写真取得のレスポンス
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - imageUrl
+        - authorId
+        - categoryId
+        - createdAt
+        - likedCount
+      properties:
+        id:
+          type: string
+          description: 投稿写真ID
+          example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+        title:
+          type: string
+          description: 写真タイトル
+          example: テスト写真タイトル
+        description:
+          type: string
+          description: 写真の説明
+          example: この写真は...
+        imageUrl:
+          type: string
+          description: 写真URL
+          example: testUrl
+        authorId:
+          type: string
+          description: 投稿者ID
+          example: testUserId
+        categoryId:
+          type: string
+          description: カテゴリID
+          example: testCategoryId
+        createdAt:
+          type: string
+          description: 作成日時
+          format: date-time # YYYY-MM-DD hh:mm:ss
+          example: 2024-05-01 00:00:00
+        likedCount:
+          type: integer
+          description: いいね数
+          example: 2
+
+    PutPhotoRequest: # 投稿写真編集のリクエスト
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - imageUrl
+        - authorId
+        - categoryId
+      properties:
+        id:
+          type: string
+          description: 投稿写真ID
+          example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
+        title:
+          type: string
+          description: 写真タイトル
+          example: テスト写真タイトル
+        description:
+          type: string
+          description: 写真の説明
+          example: この写真は...
+        imageUrl:
+          type: string
+          description: 写真URL
+          example: testUrl
+        authorId:
+          type: string
+          description: 投稿者ID
+          example: testUserId
+        categoryId:
+          type: string
+          description: カテゴリID
+          example: testCategoryId
+
+    PutPhotoSuccessResponse: # 投稿写真編集の成功レスポンス
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: 編集した写真ID
+          example: 01HWJ8W2WFKKNN6QMNVBDP8TW9
