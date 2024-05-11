@@ -1,0 +1,11 @@
+apis/PhotoApi.ts
+apis/index.ts
+index.ts
+models/DomainError.ts
+models/GetPhotoSuccessResponse.ts
+models/PostPhotoRequest.ts
+models/PostPhotoSuccessResponse.ts
+models/PutPhotoRequest.ts
+models/PutPhotoSuccessResponse.ts
+models/index.ts
+runtime.ts
