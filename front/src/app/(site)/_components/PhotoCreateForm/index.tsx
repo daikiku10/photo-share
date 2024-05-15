@@ -1,3 +1,4 @@
+import type { FormEvent } from "react";
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { PhotoDndUploader } from "@/components/PhotoDndUploader";
@@ -54,8 +55,27 @@ export function PhotoCreateForm() {
     setPhotoData(file);
   };
 
-  const handleSubmit = () => {
-    console.log("送信");
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!photoData) return;
+    try {
+      await fetch(`http://localhost:9992/api/photos`, {
+        method: "POST",
+        headers: { "Content-Type": "dddd" },
+        body: JSON.stringify({
+          authorId: "testUser1",
+          imageUrl: "testImageUrl",
+          title,
+          categoryId: "category1",
+          description,
+        }),
+      }).then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      });
+    } catch (err) {
+      window.alert("アップロードに失敗しました。");
+    }
   };
 
   return (
