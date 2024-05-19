@@ -32,3 +32,16 @@ services:
       - PMA_PASSWORD=my-secret-pw
     ports:
       - 9090:80
+
+  # AWS S3 minio
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: password
+    volumes:
+      - .minio:/data
+    command: server --console-address ":9001" /data
+    ports:
+      - 9000:9000
+      - 9001:9001
