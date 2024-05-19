@@ -59,9 +59,9 @@ export function PhotoCreateForm() {
     event.preventDefault();
     if (!photoData) return;
     try {
-      await fetch(`http://localhost:9992/api/photos`, {
+      await fetch(`${process.env.API_HOST}/api/photos`, {
         method: "POST",
-        headers: { "Content-Type": "dddd" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           authorId: "testUser1",
           imageUrl: "testImageUrl",
