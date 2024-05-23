@@ -1,0 +1,7 @@
+export const envVars = {
+  AWS_ACCESS_KEY_ID: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID ?? "",
+  AWS_SECRET_ACCESS_KEY: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY ?? "",
+  AWS_S3_ENDPOINT: process.env.NEXT_PUBLIC_AWS_S3_ENDPOINT ?? "",
+  AWS_S3_PHOTO_BUCKET_NAME:
+    process.env.NEXT_PUBLIC_AWS_S3_PHOTO_BUCKET_NAME ?? "",
+} as const;
