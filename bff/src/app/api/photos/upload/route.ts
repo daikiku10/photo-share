@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   const data = await request.json();
 
   const presignedPost = await s3.createPresignedPost({
-    Bucket: process.env.AWS_S3_PHOTO_BUCKET_NAME,
+    Bucket: envVars.AWS_S3_PHOTO_BUCKET_NAME,
     Fields: {
       key: data.filename,
       "Content-Type": data.fileType,
