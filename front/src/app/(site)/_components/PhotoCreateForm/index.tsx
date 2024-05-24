@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { PhotoDndUploader } from "@/components/PhotoDndUploader";
 import { Typography } from "@/components/Typography";
+import { uploadPhoto } from "@/lib/s3";
 import { PhotoMeta } from "./PhotoMeta";
 import styles from "./style.module.css";
 
@@ -58,15 +59,19 @@ export function PhotoCreateForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!photoData) return;
+
+    // imageUrlを受け取る
+    const imageUrl = await uploadPhoto({ photoData });
+
     try {
       await fetch(`${process.env.API_HOST}/api/photos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          authorId: "testUser1",
-          imageUrl: "testImageUrl",
+          authorId: "testUser1", // TODO ユーザー情報
+          imageUrl,
           title,
-          categoryId: "category1",
+          categoryId: "category1", // TODO カテゴリID
           description,
         }),
       }).then((res) => {
