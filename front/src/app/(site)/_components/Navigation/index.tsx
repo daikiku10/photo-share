@@ -31,7 +31,11 @@ export function Navigation() {
         </li>
         <li className={styles.listitem}>
           {renderLink(currentPathname === "/profile", (attr) => (
-            <Link href="/" className={styles.navigationLinkClassName} {...attr}>
+            <Link
+              href="/profile"
+              className={styles.navigationLinkClassName}
+              {...attr}
+            >
               <Icon type="user" color={Boolean(attr) ? "orange" : "black"} />
               profile
             </Link>
