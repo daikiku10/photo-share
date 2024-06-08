@@ -1,5 +1,8 @@
+"use client";
+
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { PhotoDndUploader } from "@/components/PhotoDndUploader";
 import { Typography } from "@/components/Typography";
@@ -45,7 +48,7 @@ export function PhotoCreateForm() {
   const [{ title, description, categoryId }, setState] = useState<State>({
     title: "",
     description: "",
-    categoryId: "",
+    categoryId: "category1",
   });
   const handleChangeMeta = (state: State) => {
     setState(state);
@@ -56,6 +59,7 @@ export function PhotoCreateForm() {
     setPhotoData(file);
   };
 
+  const router = useRouter();
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!photoData) return;
@@ -64,21 +68,24 @@ export function PhotoCreateForm() {
     const imageUrl = await uploadPhoto({ photoData });
 
     try {
-      await fetch(`${process.env.API_HOST}/api/photos`, {
+      const photo = await fetch(`${process.env.API_HOST}/api/photos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           authorId: "testUser1", // TODO ユーザー情報
           imageUrl,
           title,
-          categoryId: "category1", // TODO カテゴリID
+          categoryId: categoryId, // TODO カテゴリID
           description,
         }),
       }).then((res) => {
         if (!res.ok) throw new Error();
         return res.json();
       });
+      router.refresh();
+      router.push(`photos/${photo.id}`);
     } catch (err) {
+      console.log(err);
       window.alert("アップロードに失敗しました。");
     }
   };
