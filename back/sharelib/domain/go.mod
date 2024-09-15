@@ -1,6 +1,6 @@
 module photo-share/back/sharelib/domain
 
-go 1.20
+go 1.23
 
 require (
 	go.uber.org/multierr v1.10.0 // indirect

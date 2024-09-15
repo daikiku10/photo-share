@@ -1,6 +1,6 @@
 module photo-share/back/infrastructure/restexe/apidef
 
-go 1.20
+go 1.23
 
 require (
 	github.com/labstack/echo/v4 v4.11.4

@@ -1,3 +1,3 @@
 module photo-share/back/sharelib/user
 
-go 1.20
+go 1.23
