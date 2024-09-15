@@ -1,5 +1,7 @@
 package sql
 
+import "strings"
+
 type RawQuery struct {
 	Query string
 	Args  []any
@@ -36,4 +38,38 @@ func toAny[T any](s []T) []any {
 		a[i] = v
 	}
 	return a
+}
+
+// InCondition SQLクエリのIN条件に使用するプレイスホルダーを生成します
+func InCondition[T any](params []T) string {
+	placeholders := make([]string, len(params))
+	for i := range placeholders {
+		placeholders[i] = "?"
+	}
+	return "(" + strings.Join(placeholders, ",") + ")"
+}
+
+// Combine 複数のRawQueryを組み合わせる
+func Combine(rawQueries []*RawQuery) (string, []any) {
+	rawSql := ""
+	args := make([]any, 0, len(rawQueries)*5) // argsの容量を事前に確保しておく(5は適当)
+	for _, rawQuery := range rawQueries {
+		rawSql += " " + rawQuery.Query
+		args = append(args, rawQuery.Args...)
+	}
+	return rawSql, args
+}
+
+// CombineForUnionALL 複数のRawQueryにUNION ALLを付与して組み合わせる
+func CombineForUnionALL(rawQueries []*RawQuery) (string, []any) {
+	rawSql := ""
+	args := make([]any, 0, len(rawQueries)*5) // argsの容量を事前に確保しておく(5は適当)
+	for i, rawQuery := range rawQueries {
+		if i > 0 {
+			rawSql += " UNION ALL"
+		}
+		rawSql += " " + rawQuery.Query
+		args = append(args, rawQuery.Args...)
+	}
+	return rawSql, args
 }
