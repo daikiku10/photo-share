@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate": "openapi-generator generate -g typescript-fetch -i ../apidef/bff/apidef.yaml -o ./src/generate"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -19,6 +20,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.13.4",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20",
     "@types/react": "^18",
